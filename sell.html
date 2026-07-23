@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LandLink Sell Your Land</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+      body { background-color: #fff8f0; color: #1e1b16; }
+      .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(130, 116, 109, 0.2); }
+      .step { display: none; }
+      .step.active { display: block; }
+      .progress-bar { height: 4px; background: #fdba4b; border-radius: 2px; transition: width 0.3s; }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="bg-primary shadow-md sticky top-0 z-40">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
+          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        </a>
+        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed">
+          ← Back
+        </button>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-6 py-12">
+      <div class="grid gap-12 lg:grid-cols-3 lg:items-start">
+        <div data-aos="fade-up" class="lg:col-span-1">
+          <p class="mb-4 inline-flex rounded-full bg-secondary-fixed/20 px-3 py-1 text-sm font-semibold text-primary">📝 List your property</p>
+          <h1 class="text-4xl font-bold text-primary">Post Your Land</h1>
+          <p class="mt-6 text-on-surface-variant">Complete this form to list your property on LandLink. Your listing will be verified before going live.</p>
+          
+          <div class="mt-8 space-y-3">
+            <div id="step-indicator" class="space-y-2">
+              <!-- Step indicators -->
+            </div>
+          </div>
+        </div>
+
+        <div data-aos="fade-right" class="lg:col-span-2">
+          <!-- PROGRESS BAR -->
+          <div class="mb-6 rounded-full bg-surface-container h-2 overflow-hidden">
+            <div id="progress-fill" class="progress-bar" style="width: 20%;"></div>
+          </div>
+
+          <div id="sell-page" class="glass-card rounded-3xl border border-outline bg-white p-8 shadow-lg">
+            <!-- STEP 1: BASIC INFO -->
+            <div class="step active" data-step="1">
+              <h2 class="text-2xl font-bold text-primary mb-6">Basic Information</h2>
+              <div class="space-y-4">
+                <label class="block text-sm font-semibold text-primary">
+                  Property Title
+                  <input id="sell-title" type="text" placeholder="e.g., Agricultural land near Pune" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <label class="block text-sm font-semibold text-primary">
+                  Property Type
+                  <select id="sell-type" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+                    <option value="AGRICULTURAL">Agricultural</option>
+                    <option value="NA_RESIDENTIAL">NA Residential</option>
+                    <option value="COMMERCIAL">Commercial</option>
+                    <option value="INDUSTRIAL">Industrial</option>
+                    <option value="FARMHOUSE">Farmhouse</option>
+                  </select>
+                </label>
+                <label class="block text-sm font-semibold text-primary">
+                  Description
+                  <textarea id="sell-description" placeholder="Describe the property, features, soil quality, etc." rows="4" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary"></textarea>
+                </label>
+              </div>
+            </div>
+
+            <!-- STEP 2: LOCATION & AREA -->
+            <div class="step" data-step="2">
+              <h2 class="text-2xl font-bold text-primary mb-6">Location & Area</h2>
+              <div class="space-y-4">
+                <label class="block text-sm font-semibold text-primary">
+                  City
+                  <input id="sell-city" type="text" placeholder="e.g., Pune" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <label class="block text-sm font-semibold text-primary">
+                  Area (Numeric)
+                  <input id="sell-area" type="number" min="0" step="0.01" placeholder="12.5" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <label class="block text-sm font-semibold text-primary">
+                  Area Unit
+                  <select id="sell-unit" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+                    <option value="Guntha">Guntha</option>
+                    <option value="Acre">Acre</option>
+                    <option value="Hectare">Hectare</option>
+                    <option value="Sq.ft">Sq.ft</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <!-- STEP 3: PRICING -->
+            <div class="step" data-step="3">
+              <h2 class="text-2xl font-bold text-primary mb-6">Pricing</h2>
+              <div class="space-y-4">
+                <label class="block text-sm font-semibold text-primary">
+                  Total Price (₹)
+                  <input id="sell-price" type="number" min="0" placeholder="4500000" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <div class="p-4 rounded-2xl bg-surface-container">
+                  <p class="text-sm text-on-surface-variant">Price per unit: <strong id="price-per-unit" class="text-primary">₹ 0</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: DOCUMENTS -->
+            <div class="step" data-step="4">
+              <h2 class="text-2xl font-bold text-primary mb-6">Documents</h2>
+              <p class="text-sm text-on-surface-variant mb-4">Upload key documents (7/12 Extract, Sale Deed, etc.)</p>
+              <div class="space-y-3">
+                <label class="block p-4 border-2 border-dashed border-outline rounded-2xl cursor-pointer hover:bg-surface-container transition-all">
+                  <span class="text-center block text-sm font-semibold text-primary">
+                    📄 Select Files (Optional)
+                  </span>
+                  <input type="file" id="sell-documents" multiple class="hidden" />
+                </label>
+                <div id="file-list" class="text-sm text-on-surface-variant"></div>
+              </div>
+            </div>
+
+            <!-- STEP 5: CONTACT -->
+            <div class="step" data-step="5">
+              <h2 class="text-2xl font-bold text-primary mb-6">Contact Details</h2>
+              <div class="space-y-4">
+                <label class="block text-sm font-semibold text-primary">
+                  Your Phone Number
+                  <input id="sell-phone" type="tel" placeholder="9876543210" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <label class="block text-sm font-semibold text-primary">
+                  Your Email (Optional)
+                  <input id="sell-email" type="email" placeholder="your@email.com" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+                </label>
+                <label class="flex items-center gap-3 text-sm text-primary">
+                  <input id="sell-whatsapp" type="checkbox" class="rounded cursor-pointer" />
+                  <span>✓ I agree to receive WhatsApp updates</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="flex gap-3 mt-8">
+              <button id="prev-btn" onclick="prevStep()" class="flex-1 rounded-full border-2 border-primary text-primary px-4 py-3 font-semibold hover:bg-surface-container active:scale-95 transition-all" style="display:none;">
+                ← Previous
+              </button>
+              <button id="next-btn" onclick="nextStep()" class="flex-1 rounded-full bg-secondary-fixed px-4 py-3 font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all">
+                Next →
+              </button>
+              <button id="submit-btn" onclick="submitListing()" class="flex-1 rounded-full bg-primary px-4 py-3 font-semibold text-on-primary hover:bg-primary-container active:scale-95 transition-all" style="display:none;">
+                ✓ Submit Listing
+              </button>
+            </div>
+
+            <p id="sell-status" class="mt-4 text-sm text-on-surface-variant text-center">💡 Demo mode: Your listing will be saved locally.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-primary text-on-primary py-12 mt-20">
+      <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
+        &copy; 2024 LandLink. All rights reserved.
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./landing.js"></script>
+    <script>
+      let currentStep = 1;
+      const totalSteps = 5;
+
+      function updateUI() {
+        // Hide all steps
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        // Show current step
+        document.querySelector(`[data-step="${currentStep}"]`)?.classList.add('active');
+        
+        // Update buttons
+        document.getElementById('prev-btn').style.display = currentStep === 1 ? 'none' : 'block';
+        document.getElementById('next-btn').style.display = currentStep === totalSteps ? 'none' : 'block';
+        document.getElementById('submit-btn').style.display = currentStep === totalSteps ? 'block' : 'none';
+        
+        // Update progress
+        const progress = (currentStep / totalSteps) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+
+        // Update step indicators
+        updateStepIndicator();
+      }
+
+      function updateStepIndicator() {
+        const steps = ['Basic Info', 'Location', 'Price', 'Documents', 'Contact'];
+        const indicator = document.getElementById('step-indicator');
+        indicator.innerHTML = steps.map((s, i) => `
+          <div class="flex items-center gap-3 p-3 rounded-xl ${i + 1 === currentStep ? 'bg-secondary-fixed/20' : 'opacity-50'}">
+            <div class="w-6 h-6 rounded-full ${i + 1 === currentStep ? 'bg-secondary-fixed text-on-secondary-container' : 'bg-outline text-white'} flex items-center justify-center text-xs font-bold">
+              ${i + 1}
+            </div>
+            <span class="text-sm font-semibold">${s}</span>
+          </div>
+        `).join('');
+      }
+
+      function nextStep() {
+        if (validateCurrentStep()) {
+          if (currentStep < totalSteps) {
+            currentStep++;
+            updateUI();
+          }
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 1) {
+          currentStep--;
+          updateUI();
+        }
+      }
+
+      function validateCurrentStep() {
+        const getVal = (id) => document.getElementById(id)?.value?.trim();
+        
+        if (currentStep === 1 && !getVal('sell-title')) {
+          showLandingToast('Please enter a property title');
+          return false;
+        }
+        if (currentStep === 2 && !getVal('sell-city')) {
+          showLandingToast('Please enter a city');
+          return false;
+        }
+        if (currentStep === 3 && !getVal('sell-price')) {
+          showLandingToast('Please enter a price');
+          return false;
+        }
+        return true;
+      }
+
+      function submitListing() {
+        const listing = {
+          title: document.getElementById('sell-title')?.value || 'Untitled',
+          type: document.getElementById('sell-type')?.value || 'AGRICULTURAL',
+          description: document.getElementById('sell-description')?.value,
+          city: document.getElementById('sell-city')?.value || 'Unknown',
+          area: parseFloat(document.getElementById('sell-area')?.value) || 0,
+          unit: document.getElementById('sell-unit')?.value || 'Guntha',
+          price: parseInt(document.getElementById('sell-price')?.value) || 0,
+          phone: document.getElementById('sell-phone')?.value || '',
+          email: document.getElementById('sell-email')?.value || '',
+          whatsapp: document.getElementById('sell-whatsapp')?.checked,
+          timestamp: new Date().toISOString()
+        };
+
+        // Save to localStorage
+        const listings = JSON.parse(localStorage.getItem('landlinkUserListings') || '[]');
+        listings.push(listing);
+        localStorage.setItem('landlinkUserListings', JSON.stringify(listings));
+
+        showLandingToast('✅ Listing saved! Admin will verify and publish soon.');
+        setTimeout(() => navigateTo('dashboard.html'), 1000);
+      }
+
+      // Update price per unit
+      document.getElementById('sell-price')?.addEventListener('change', () => {
+        const price = parseFloat(document.getElementById('sell-price')?.value) || 0;
+        const area = parseFloat(document.getElementById('sell-area')?.value) || 1;
+        const perUnit = (price / area / 100000).toFixed(1);
+        document.getElementById('price-per-unit').textContent = '₹ ' + perUnit + 'L per unit';
+      });
+
+      document.addEventListener('DOMContentLoaded', () => {
+        AOS.init({ duration: 800, once: true });
+        updateUI();
+      });
+    </script>
+  </body>
+</html>

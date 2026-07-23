@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>LandLink | Premium Land Marketplace Maharashtra</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "surface-bright": "#fff8f0",
+              "on-primary-container": "#d1aa91",
+              "on-surface": "#1e1b16",
+              "primary": "#412817",
+              "surface-container-high": "#eee7dd",
+              "secondary": "#805600",
+              "tertiary-fixed": "#e0e5cc",
+              "on-secondary-fixed": "#281800",
+              "error-container": "#ffdad6",
+              "surface-container": "#f4ede3",
+              "primary-fixed-dim": "#e7bea5",
+              "secondary-fixed": "#fdba4b",
+              "inverse-surface": "#33302a",
+              "secondary-fixed-dim": "#fdba4b",
+              "on-tertiary-fixed": "#191d0e",
+              "on-error": "#ffffff",
+              "tertiary-fixed-dim": "#c4c9b1",
+              "on-surface-variant": "#50453e",
+              "tertiary": "#2b301f",
+              "on-background": "#1e1b16",
+              "secondary-container": "#fdba4b",
+              "error": "#ba1a1a",
+              "outline-variant": "#d3c3bb",
+              "inverse-on-surface": "#f7f0e6",
+              "surface-variant": "#e8e2d8",
+              "surface-tint": "#775843",
+              "on-primary-fixed-variant": "#5d412d",
+              "on-primary-fixed": "#2c1607",
+              "surface": "#fff8f0",
+              "inverse-primary": "#e7bea5",
+              "tertiary-container": "#414634",
+              "background": "#fff8f0",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-container": "#afb49d",
+              "on-error-container": "#93000a",
+              "on-secondary-fixed-variant": "#614000",
+              "on-tertiary-fixed-variant": "#444937",
+              "on-secondary-container": "#704b00",
+              "on-secondary": "#ffffff",
+              "surface-dim": "#e0d9d0",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#82746d",
+              "surface-container-highest": "#e8e2d8",
+              "primary-container": "#5a3e2b",
+              "on-primary": "#ffffff"
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body { background-color: #fff8f0; color: #1e1b16; -webkit-font-smoothing: antialiased; }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
+      #map { height: 400px; border-radius: 24px; box-shadow: 0 24px 80px rgba(90, 62, 43, 0.08); }
+      .active\:scale-95:active { transform: scale(0.95); }
+      .whatsapp-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 56px;
+        height: 56px;
+        background: #25d366;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 30;
+        text-decoration: none;
+      }
+      .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER / NAV -->
+    <header class="bg-primary shadow-md sticky top-0 z-50">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
+          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        </a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
+          <a data-nav="index.html" href="index.html" class="hover:opacity-100">Home</a>
+          <a data-nav="browse.html" href="browse.html" class="hover:opacity-100">Browse</a>
+          <a data-nav="sell.html" href="sell.html" class="hover:opacity-100">Sell</a>
+          <a data-nav="about.html" href="about.html" class="hover:opacity-100">About</a>
+          <a data-nav="contact.html" href="contact.html" class="hover:opacity-100">Contact</a>
+        </nav>
+        <div class="flex items-center gap-4">
+          <button id="landing-login" class="text-sm text-on-primary hover:text-secondary-fixed active:scale-95 transition-all">Login / Sign Up</button>
+          <button onclick="toggleMobileMenu()" class="lg:hidden text-on-primary">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+      </div>
+      <!-- MOBILE MENU -->
+      <div id="mobile-menu" style="transform:translateX(-100%);transition:transform 0.3s;" class="lg:hidden bg-primary-container border-t border-on-primary/20">
+        <nav class="px-6 py-4 space-y-3 text-sm text-on-primary">
+          <a href="index.html" onclick="closeMobileMenu()" class="block py-2">Home</a>
+          <a href="browse.html" onclick="closeMobileMenu()" class="block py-2">Browse</a>
+          <a href="sell.html" onclick="closeMobileMenu()" class="block py-2">Sell</a>
+          <a href="about.html" onclick="closeMobileMenu()" class="block py-2">About</a>
+          <a href="contact.html" onclick="closeMobileMenu()" class="block py-2">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- HERO SECTION WITH MAP -->
+    <section class="relative bg-gradient-to-br from-primary via-primary-container to-secondary overflow-hidden">
+      <div class="mx-auto max-w-7xl px-6 py-20 sm:py-28 relative z-10">
+        <div class="grid gap-12 md:grid-cols-2 items-center">
+          <div data-aos="fade-up">
+            <h1 class="text-5xl sm:text-6xl font-bold text-on-primary tracking-tight">Find Your Perfect Plot</h1>
+            <p class="mt-6 text-lg text-on-primary/90">Discover premium agricultural, residential, and commercial land across Maharashtra with verified documents and expert guidance.</p>
+            <button id="landing-search" class="mt-8 rounded-full bg-secondary-fixed px-8 py-4 font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all shadow-lg">
+              Explore Properties
+            </button>
+          </div>
+          <div id="map" data-aos="fade-left"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <section class="bg-surface-container/50 py-8 -mt-12 relative z-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <form class="rounded-3xl bg-white p-6 shadow-xl grid gap-4 md:grid-cols-5" onsubmit="event.preventDefault(); navigateTo(buildSearchUrl());">
+          <input id="landing-location" type="text" placeholder="City or location" class="rounded-2xl border border-outline px-4 py-3 text-sm" />
+          <select id="landing-landtype" class="rounded-2xl border border-outline px-4 py-3 text-sm">
+            <option value="">Any type</option>
+            <option value="AGRICULTURAL">Agricultural</option>
+            <option value="NA_RESIDENTIAL">NA Residential</option>
+            <option value="COMMERCIAL">Commercial</option>
+            <option value="INDUSTRIAL">Industrial</option>
+            <option value="FARMHOUSE">Farmhouse</option>
+          </select>
+          <input id="landing-budget" type="text" placeholder="Budget" class="rounded-2xl border border-outline px-4 py-3 text-sm" />
+          <input id="landing-area" type="text" placeholder="Area" class="rounded-2xl border border-outline px-4 py-3 text-sm" />
+          <button type="submit" class="rounded-full bg-primary px-6 py-3 font-semibold text-on-primary hover:bg-primary-container active:scale-95 transition-all">Search</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FEATURED LISTINGS -->
+    <section class="mx-auto max-w-7xl px-6 py-20" data-aos="fade-up">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-primary">Featured Listings</h2>
+        <p class="mt-2 text-on-surface-variant">Handpicked properties with verified documents</p>
+      </div>
+      <div id="featured-listings-container" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Populated by landing.js -->
+      </div>
+      <div class="text-center mt-12">
+        <button id="landing-view-all" class="rounded-full bg-secondary-container px-8 py-4 font-semibold text-on-secondary-container hover:bg-secondary-fixed active:scale-95 transition-all">
+          View All Properties
+        </button>
+      </div>
+    </section>
+
+    <!-- LAND TYPES -->
+    <section class="bg-surface-container py-20" data-aos="fade-up">
+      <div class="mx-auto max-w-7xl px-6">
+        <h2 class="text-4xl font-bold text-center text-primary mb-12">Browse by Land Type</h2>
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <a href="browse.html?landType=AGRICULTURAL" class="group rounded-3xl bg-white p-8 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+            <div class="text-4xl mb-4">🌾</div>
+            <h3 class="text-2xl font-bold text-primary">Agricultural</h3>
+            <p class="mt-2 text-on-surface-variant">Farming and cultivation land</p>
+          </a>
+          <a href="browse.html?landType=NA_RESIDENTIAL" class="group rounded-3xl bg-white p-8 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+            <div class="text-4xl mb-4">🏡</div>
+            <h3 class="text-2xl font-bold text-primary">NA Residential</h3>
+            <p class="mt-2 text-on-surface-variant">Residential properties and plots</p>
+          </a>
+          <a href="browse.html?landType=COMMERCIAL" class="group rounded-3xl bg-white p-8 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+            <div class="text-4xl mb-4">🏢</div>
+            <h3 class="text-2xl font-bold text-primary">Commercial</h3>
+            <p class="mt-2 text-on-surface-variant">Business and retail spaces</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCATIONS -->
+    <section class="mx-auto max-w-7xl px-6 py-20" data-aos="fade-up">
+      <h2 class="text-4xl font-bold text-center text-primary mb-12">Popular Locations</h2>
+      <div class="flex flex-wrap gap-3 justify-center">
+        <button data-landing-location="Pune" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Pune</button>
+        <button data-landing-location="Vadgaon" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Vadgaon</button>
+        <button data-landing-location="Hinjewadi" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Hinjewadi</button>
+        <button data-landing-location="Wagholi" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Wagholi</button>
+        <button data-landing-location="Chakan" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Chakan</button>
+        <button data-landing-location="Ravet" class="rounded-full bg-secondary-fixed/20 px-6 py-3 text-primary hover:bg-secondary-fixed/40 active:scale-95 transition-all">Ravet</button>
+      </div>
+    </section>
+
+    <!-- TRUST SECTION -->
+    <section class="bg-primary text-on-primary py-20" data-aos="fade-up">
+      <div class="mx-auto max-w-7xl px-6 text-center">
+        <h2 class="text-4xl font-bold mb-12">Why Choose LandLink?</h2>
+        <div class="grid gap-8 md:grid-cols-3">
+          <div>
+            <div class="text-5xl font-bold text-secondary-fixed mb-2" data-count-up="12000">0</div>
+            <p class="text-lg">+ Properties Listed</p>
+          </div>
+          <div>
+            <div class="text-5xl font-bold text-secondary-fixed mb-2" data-count-up="50">0</div>
+            <p class="text-lg">+ Expert Agents</p>
+          </div>
+          <div>
+            <div class="text-5xl font-bold text-secondary-fixed mb-2" data-count-up="8000">0</div>
+            <p class="text-lg">+ Happy Customers</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="bg-surface-container py-20" data-aos="fade-up">
+      <div class="mx-auto max-w-4xl px-6 text-center">
+        <h2 class="text-4xl font-bold text-primary mb-6">Ready to List Your Land?</h2>
+        <p class="text-lg text-on-surface-variant mb-8">Post your property for free and connect with qualified buyers today.</p>
+        <button id="landing-list-land" class="rounded-full bg-primary px-8 py-4 font-semibold text-on-primary hover:bg-primary-container active:scale-95 transition-all shadow-lg">
+          List Your Land Now
+        </button>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-primary text-on-primary py-12">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="grid gap-8 md:grid-cols-4 mb-8">
+          <div>
+            <h3 class="font-bold mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+            </h3>
+            <p class="text-sm opacity-90">Premium land marketplace connecting buyers and sellers across Maharashtra.</p>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Quick Links</h4>
+            <ul class="space-y-2 text-sm opacity-90">
+              <li><a href="browse.html" class="hover:text-secondary-fixed">Browse Listings</a></li>
+              <li><a href="sell.html" class="hover:text-secondary-fixed">Sell Land</a></li>
+              <li><a href="about.html" class="hover:text-secondary-fixed">About Us</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Legal</h4>
+            <ul class="space-y-2 text-sm opacity-90">
+              <li><a href="privacy.html" class="hover:text-secondary-fixed">Privacy Policy</a></li>
+              <li><a href="terms.html" class="hover:text-secondary-fixed">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold mb-4">Contact</h4>
+            <p class="text-sm opacity-90">
+              <a href="tel:+919876543210" class="hover:text-secondary-fixed">+91 98765 43210</a><br />
+              <a href="mailto:support@landlink.in" class="hover:text-secondary-fixed">support@landlink.in</a>
+            </p>
+          </div>
+        </div>
+        <div class="border-t border-on-primary/20 pt-8 text-center text-sm opacity-75">
+          &copy; 2024 LandLink. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/919876543210" target="_blank" class="whatsapp-btn" title="Chat on WhatsApp">
+      <span class="material-symbols-outlined" style="font-size:32px;">chat</span>
+    </a>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./landing.js"></script>
+    <script>
+      // Initialize map
+      function initializeMap() {
+        const map = L.map('map').setView([18.5204, 73.8567], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+        
+        // Add demo markers
+        DEMO_LISTINGS.forEach(listing => {
+          const lat = 18.5204 + (Math.random() - 0.5) * 0.5;
+          const lng = 73.8567 + (Math.random() - 0.5) * 0.5;
+          L.marker([lat, lng], {
+            icon: L.icon({
+              iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQxMjgxNyIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyYzAgNy41IDEwIDIwIDEwIDIwczEwLTEyLjUgMTAtMjBjMC01LjUyLTQuNDgtMTAtMTAtMTB6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6Ii8+PC9zdmc+',
+              iconSize: [32, 40],
+              iconAnchor: [16, 40]
+            })
+          }).addTo(map).bindPopup(`<strong>${listing.title}</strong><br/>₹${(listing.price/100000).toFixed(1)}L`);
+        });
+      }
+
+      // Initialize AOS
+      AOS.init({ duration: 800, once: true });
+
+      // Count-up animation
+      function countUp(element) {
+        const target = parseInt(element.getAttribute('data-count-up'));
+        let count = 0;
+        const increment = Math.ceil(target / 50);
+        const interval = setInterval(() => {
+          count += increment;
+          if (count >= target) {
+            element.textContent = target.toLocaleString() + '+';
+            clearInterval(interval);
+          } else {
+            element.textContent = count.toLocaleString();
+          }
+        }, 20);
+      }
+
+      // Trigger countup when section is visible
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !entry.target.hasAttribute('data-counted')) {
+            entry.target.setAttribute('data-counted', 'true');
+            document.querySelectorAll('[data-count-up]').forEach(el => countUp(el));
+          }
+        });
+      });
+      document.querySelectorAll('[data-count-up]').forEach(el => observer.observe(el.parentElement));
+
+      // Initialize on load
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeMap();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LandLink Browse Listings</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="bg-primary shadow-md sticky top-0 z-50">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
+          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        </a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
+          <a href="index.html">Home</a>
+          <a href="browse.html" class="font-semibold">Browse</a>
+          <a href="sell.html">Sell</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <div class="flex items-center gap-4">
+          <button id="landing-login" class="text-sm text-on-primary hover:text-secondary-fixed">Login / Sign Up</button>
+          <button onclick="toggleMobileMenu()" class="lg:hidden text-on-primary">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+      </div>
+      <!-- MOBILE MENU -->
+      <div id="mobile-menu" style="transform:translateX(-100%);transition:transform 0.3s;" class="lg:hidden bg-primary-container border-t border-on-primary/20">
+        <nav class="px-6 py-4 space-y-3 text-sm text-on-primary">
+          <a href="index.html" onclick="closeMobileMenu()" class="block py-2">Home</a>
+          <a href="browse.html" onclick="closeMobileMenu()" class="block py-2">Browse</a>
+          <a href="sell.html" onclick="closeMobileMenu()" class="block py-2">Sell</a>
+          <a href="about.html" onclick="closeMobileMenu()" class="block py-2">About</a>
+          <a href="contact.html" onclick="closeMobileMenu()" class="block py-2">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="browse-page" class="mx-auto max-w-7xl px-6 py-8">
+      <!-- FILTER SECTION -->
+      <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md mb-8">
+        <h1 class="text-4xl font-semibold text-primary">Browse Listings</h1>
+        <p class="mt-2 text-sm text-on-surface-variant">Filter plots by location, type, budget, and area.</p>
+        <form class="mt-8 grid gap-4 lg:grid-cols-5" onsubmit="event.preventDefault();">
+          <input id="browse-city" name="city" class="rounded-2xl border border-outline px-4 py-3 text-sm" placeholder="City" onchange="applyFilters()" />
+          <select id="browse-landtype" name="landType" class="rounded-2xl border border-outline px-4 py-3 text-sm" onchange="applyFilters()">
+            <option value="">Any type</option>
+            <option value="AGRICULTURAL">Agricultural</option>
+            <option value="NA_RESIDENTIAL">NA Residential</option>
+            <option value="COMMERCIAL">Commercial</option>
+            <option value="INDUSTRIAL">Industrial</option>
+            <option value="FARMHOUSE">Farmhouse</option>
+          </select>
+          <input id="browse-minprice" name="minPrice" type="number" min="0" class="rounded-2xl border border-outline px-4 py-3 text-sm" placeholder="Min budget" onchange="applyFilters()" />
+          <input id="browse-maxprice" name="maxPrice" type="number" min="0" class="rounded-2xl border border-outline px-4 py-3 text-sm" placeholder="Max budget" onchange="applyFilters()" />
+          <select id="browse-sort" class="rounded-2xl border border-outline px-4 py-3 text-sm" onchange="applySorting()">
+            <option value="">Sort by</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="recent">Recently Added</option>
+            <option value="popular">Most Viewed</option>
+          </select>
+        </form>
+      </div>
+
+      <!-- STATUS BAR -->
+      <div data-aos="fade-up" class="mt-8 flex flex-col gap-4 rounded-3xl border border-outline/20 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+        <p id="browse-status" class="text-sm text-on-surface-variant">Browse listings, save favorites, and compare plots.</p>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="rounded-full bg-secondary-fixed/20 px-4 py-2 text-sm text-primary font-semibold">
+            Saved: <strong id="browse-favorites-count">0</strong>
+          </span>
+          <span class="rounded-full bg-secondary-fixed/20 px-4 py-2 text-sm text-primary font-semibold">
+            Compare: <strong id="browse-compare-count">0</strong>
+          </span>
+        </div>
+      </div>
+
+      <!-- LISTINGS GRID -->
+      <section id="listings-container" class="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Populated by JS -->
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-primary text-on-primary py-12 mt-20">
+      <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
+        &copy; 2024 LandLink. All rights reserved.
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./landing.js"></script>
+    <script>
+      // Filter and render listings
+      function getFilteredListings() {
+        const city = document.getElementById('browse-city')?.value?.toLowerCase() || '';
+        const landType = document.getElementById('browse-landtype')?.value || '';
+        const minPrice = parseInt(document.getElementById('browse-minprice')?.value) || 0;
+        const maxPrice = parseInt(document.getElementById('browse-maxprice')?.value) || Infinity;
+
+        return DEMO_LISTINGS.filter(listing => {
+          const cityMatch = !city || listing.city.toLowerCase().includes(city);
+          const typeMatch = !landType || listing.type === landType;
+          const priceMatch = listing.price >= minPrice && listing.price <= maxPrice;
+          return cityMatch && typeMatch && priceMatch;
+        });
+      }
+
+      function applySorting() {
+        const sort = document.getElementById('browse-sort')?.value || '';
+        let filtered = getFilteredListings();
+
+        if (sort === 'price-low') filtered.sort((a, b) => a.price - b.price);
+        if (sort === 'price-high') filtered.sort((a, b) => b.price - a.price);
+        if (sort === 'recent') filtered.sort((a, b) => b.id - a.id);
+
+        renderListings(filtered);
+      }
+
+      function applyFilters() {
+        const sort = document.getElementById('browse-sort')?.value || '';
+        applySorting();
+      }
+
+      function renderListings(listings) {
+        const container = document.getElementById('listings-container');
+        const favorites = getStoredFavorites();
+        const compare = getStoredCompare();
+
+        container.innerHTML = listings.map(listing => `
+          <article class="rounded-3xl border border-outline/20 bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all">
+            <div class="h-56 bg-cover bg-center" style="background-image:url('${listing.image}');"></div>
+            <div class="p-6">
+              <div class="flex items-center justify-between">
+                <p class="text-xs uppercase tracking-wide text-primary font-bold">${listing.type.replace(/_/g, ' ')}</p>
+                ${listing.verified ? '<span class="text-xs bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-semibold">✓ Verified</span>' : ''}
+              </div>
+              <h2 class="mt-3 text-2xl font-semibold text-primary">${listing.title}</h2>
+              <p class="mt-3 text-sm leading-6 text-on-surface-variant">${listing.area} ${listing.unit} of premium property in ${listing.city}.</p>
+              <div class="mt-6 flex items-center justify-between text-sm">
+                <span class="font-bold text-xl text-primary">₹${(listing.price / 100000).toFixed(1)}L</span>
+                <div class="flex gap-2">
+                  <button data-favorite-button="${listing.id}" class="rounded-full ${favorites.includes(listing.id) ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-secondary-fixed/20 text-primary'} px-3 py-1 text-xs font-semibold cursor-pointer hover:scale-110 transition-transform">
+                    ${favorites.includes(listing.id) ? '❤️' : '🤍'}
+                  </button>
+                  <label class="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/20 px-3 py-1 text-xs cursor-pointer hover:scale-110 transition-transform">
+                    <input data-compare-checkbox data-compare-id="${listing.id}" type="checkbox" ${compare.includes(listing.id) ? 'checked' : ''} class="rounded cursor-pointer" />
+                    📊
+                  </label>
+                </div>
+              </div>
+              <a href="listing.html?id=${listing.id}" class="mt-4 block text-center rounded-full bg-secondary-fixed px-4 py-2 text-xs font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 transition-colors">
+                View Details →
+              </a>
+            </div>
+          </article>
+        `).join('');
+
+        synchronizeSavedButtons();
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', () => {
+        AOS.init({ duration: 800, once: true });
+        populateBrowseFilters();
+        attachBrowsePageEvents();
+        renderListings(getFilteredListings());
+        renderCompareBar();
+      });
+
+      // Update compare bar on checkbox change
+      document.addEventListener('change', (e) => {
+        if (e.target.hasAttribute('data-compare-checkbox')) {
+          renderCompareBar();
+        }
+      });
+    </script>
+  </body>
+</html>

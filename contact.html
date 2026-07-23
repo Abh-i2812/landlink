@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact LandLink</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  </head>
+  <body style="background-color: #fff8f0; color: #1e1b16;">
+    <!-- HEADER -->
+    <header class="bg-primary shadow-md sticky top-0 z-40">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
+          <span class="material-symbols-outlined" style="color: #fdba4b;">location_on</span>LandLink
+        </a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
+          <a href="index.html">Home</a>
+          <a href="browse.html">Browse</a>
+          <a href="sell.html">Sell</a>
+          <a href="about.html">About</a>
+          <a href="contact.html" class="font-semibold">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-6 py-20">
+      <div data-aos="fade-up" class="text-center mb-16">
+        <h1 class="text-5xl font-bold text-primary">Contact Us</h1>
+        <p class="mt-4 text-xl text-on-surface-variant">We're here to help with your land queries</p>
+      </div>
+
+      <div class="grid gap-12 md:grid-cols-2">
+        <div data-aos="fade-up" class="rounded-3xl bg-white p-12 shadow-md">
+          <h2 class="text-3xl font-bold text-primary mb-8">Get in Touch</h2>
+          <form class="space-y-4" onsubmit="submitContact(event)">
+            <label class="block text-sm font-semibold text-primary">
+              Name
+              <input type="text" required placeholder="Your name" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            </label>
+            <label class="block text-sm font-semibold text-primary">
+              Email
+              <input type="email" required placeholder="your@email.com" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            </label>
+            <label class="block text-sm font-semibold text-primary">
+              Phone
+              <input type="tel" required placeholder="9876543210" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            </label>
+            <label class="block text-sm font-semibold text-primary">
+              Message
+              <textarea required placeholder="Your message" rows="5" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary"></textarea>
+            </label>
+            <button type="submit" class="w-full rounded-full bg-secondary-fixed px-4 py-3 font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all">
+              📤 Send Message
+            </button>
+          </form>
+        </div>
+
+        <div data-aos="fade-up" class="space-y-8">
+          <div class="rounded-3xl bg-primary text-on-primary p-8">
+            <h3 class="text-2xl font-bold mb-6">Contact Information</h3>
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <span class="material-symbols-outlined text-secondary-fixed text-3xl">call</span>
+                <div>
+                  <p class="font-semibold">Phone</p>
+                  <a href="tel:+919876543210" class="text-secondary-fixed hover:underline">+91 98765 43210</a>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <span class="material-symbols-outlined text-secondary-fixed text-3xl">mail</span>
+                <div>
+                  <p class="font-semibold">Email</p>
+                  <a href="mailto:support@landlink.in" class="text-secondary-fixed hover:underline">support@landlink.in</a>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <span class="material-symbols-outlined text-secondary-fixed text-3xl">location_on</span>
+                <div>
+                  <p class="font-semibold">Office</p>
+                  <p class="text-sm opacity-90">Pune, Maharashtra<br />India</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-3xl bg-surface-container p-8">
+            <h3 class="text-xl font-bold text-primary mb-4">Business Hours</h3>
+            <p class="text-on-surface-variant">
+              Monday - Friday: 10:00 AM - 6:00 PM<br />
+              Saturday: 10:00 AM - 4:00 PM<br />
+              Sunday: Closed
+            </p>
+          </div>
+
+          <div class="rounded-3xl bg-white p-8 shadow-md">
+            <h3 class="text-xl font-bold text-primary mb-4">Follow Us</h3>
+            <div class="flex gap-4">
+              <a href="https://wa.me/919876543210" target="_blank" class="inline-block p-3 rounded-full bg-green-500 text-white hover:scale-110 transition-transform">💬</a>
+              <a href="https://instagram.com" target="_blank" class="inline-block p-3 rounded-full bg-pink-500 text-white hover:scale-110 transition-transform">📷</a>
+              <a href="https://facebook.com" target="_blank" class="inline-block p-3 rounded-full bg-blue-600 text-white hover:scale-110 transition-transform">f</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-primary text-on-primary py-12 mt-20">
+      <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
+        &copy; 2024 LandLink. All rights reserved.
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./landing.js"></script>
+    <script>
+      function submitContact(event) {
+        event.preventDefault();
+        showLandingToast('✅ Message sent! We\'ll reply within 24 hours.');
+        event.target.reset();
+      }
+
+      AOS.init({ duration: 800, once: true });
+    </script>
+  </body>
+</html>

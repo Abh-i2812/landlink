@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LandLink Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <style>
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+    </style>
+  </head>
+  <body>
+    <header class="bg-primary shadow-md">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl"><span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">location_on</span>LandLink</a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
+          <a data-nav="index.html" href="index.html">Home</a>
+          <a data-nav="browse.html" href="browse.html">Browse</a>
+          <a data-nav="sell.html" href="sell.html">Sell</a>
+          <a data-nav="about.html" href="about.html">About</a>
+          <a data-nav="contact.html" href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="dashboard-page" class="mx-auto max-w-5xl px-6 py-16">
+      <div class="rounded-[32px] bg-white p-10 shadow-[0_24px_80px_rgba(90,62,43,0.08)]">
+        <h1 id="dashboard-greeting" class="text-4xl font-semibold text-[#3e2723]">Dashboard placeholder</h1>
+        <p id="dashboard-details" class="mt-4 text-sm text-[#5a5145]">You are now on the static dashboard page. Connect this UI to your auth backend and live dashboard data to show real user information.</p>
+        <div class="mt-10 grid gap-6 md:grid-cols-2">
+          <div class="rounded-3xl bg-[#fff8ee] p-6">
+            <p class="font-semibold text-[#3e2723]">Welcome back!</p>
+            <p class="mt-2 text-sm text-[#5a5145]">This is a sample authenticated landing area after OTP login.</p>
+            <button id="dashboard-logout" class="mt-6 rounded-full bg-secondary-container px-5 py-3 text-sm font-semibold text-on-secondary-container hover:bg-secondary-fixed">Log out</button>
+          </div>
+          <div class="rounded-3xl bg-[#fff8ee] p-6">
+            <p class="font-semibold text-[#3e2723]">Next steps</p>
+            <ul class="mt-3 list-disc pl-5 text-sm text-[#5a5145] space-y-2">
+              <li>Wire your auth backend session state.</li>
+              <li>Load user-specific listings and inquiries.</li>
+              <li>Provide logout and account management.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-primary text-on-primary py-10">
+      <div class="mx-auto max-w-7xl px-6 text-sm opacity-90">Static dashboard placeholder for GitHub Pages.</div>
+    </footer>
+    <script src="./landing.js"></script>
+  </body>
+</html>
