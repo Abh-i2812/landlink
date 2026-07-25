@@ -37,20 +37,20 @@
             <button id="dashboard-logout" class="mt-6 rounded-full bg-secondary-container px-5 py-3 text-sm font-semibold text-on-secondary-container hover:bg-secondary-fixed">Log out</button>
           </div>
           <div class="rounded-3xl bg-[#fff8ee] p-6">
-            <p class="font-semibold text-[#3e2723]">Next steps</p>
-            <ul class="mt-3 list-disc pl-5 text-sm text-[#5a5145] space-y-2">
-              <li>Wire your auth backend session state.</li>
-              <li>Load user-specific listings and inquiries.</li>
-              <li>Provide logout and account management.</li>
+            <p class="font-semibold text-[#3e2723]">Saved favorites</p>
+            <ul id="dashboard-favorites" class="mt-3 list-disc pl-5 text-sm text-[#5a5145] space-y-2">
+              <li>Login to load favorites from the API.</li>
             </ul>
+            <a href="admin/login.html" class="mt-6 inline-block text-sm font-semibold text-[#412817] underline">Admin panel</a>
           </div>
         </div>
       </div>
     </main>
 
     <footer class="bg-primary text-on-primary py-10">
-      <div class="mx-auto max-w-7xl px-6 text-sm opacity-90">Static dashboard placeholder for GitHub Pages.</div>
+      <div class="mx-auto max-w-7xl px-6 text-sm opacity-90">LandLink user dashboard</div>
     </footer>
+    <script src="./api.js"></script>
     <script src="./landing.js"></script>
   </body>
 </html>

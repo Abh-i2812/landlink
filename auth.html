@@ -34,12 +34,12 @@
           <p class="mt-6 text-lg text-on-surface-variant">LandLink uses one-time passcodes for secure, password-free login. Perfect for mobile-first access.</p>
           
           <div class="mt-12 rounded-3xl bg-surface-container p-6">
-            <h3 class="font-bold text-primary mb-3">🧪 Demo Mode</h3>
+            <h3 class="font-bold text-primary mb-3">Local API login</h3>
             <p class="text-sm text-on-surface-variant">
-              <strong>Phone:</strong> Any 10 digits (e.g., 9123456789)<br />
-              <strong>OTP:</strong> Any 6 digits (e.g., 123456)<br />
-              <strong>Name:</strong> Your name or demo user<br />
-              <strong>Role:</strong> Choose BUYER, SELLER, or AGENT
+              <strong>API:</strong> http://localhost:3000<br />
+              <strong>Phone:</strong> 10-digit Indian mobile<br />
+              <strong>OTP:</strong> use <code>123456</code> when Twilio is not configured<br />
+              <strong>Role:</strong> BUYER, SELLER, or AGENT
             </p>
           </div>
         </div>
@@ -68,6 +68,17 @@
               <button id="auth-send-otp" class="w-full rounded-full bg-secondary-fixed px-4 py-3 text-sm font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all">
                 📱 Send OTP
               </button>
+              
+              <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-outline"></div>
+                <span class="flex-shrink-0 mx-4 text-on-surface-variant text-sm font-medium">Or</span>
+                <div class="flex-grow border-t border-outline"></div>
+              </div>
+              
+              <button id="auth-google-signin" class="w-full flex items-center justify-center gap-2 rounded-full border border-outline bg-white px-4 py-3 text-sm font-semibold text-primary hover:bg-surface-container active:scale-95 transition-all">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
+                Sign in with Google
+              </button>
             </div>
 
             <!-- OTP Verification -->
@@ -82,7 +93,7 @@
               </button>
             </div>
 
-            <p id="auth-status" class="mt-4 text-sm text-on-surface-variant text-center">Demo mode: accept any credentials to test the app.</p>
+            <p id="auth-status" class="mt-4 text-sm text-on-surface-variant text-center">Connecting to live OTP API…</p>
           </div>
         </div>
       </div>
@@ -96,6 +107,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./api.js"></script>
     <script src="./landing.js"></script>
     <script>
       AOS.init({ duration: 800, once: true });

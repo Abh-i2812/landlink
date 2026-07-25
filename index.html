@@ -293,28 +293,33 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="./api.js"></script>
     <script src="./landing.js"></script>
     <script>
       // Initialize map
-      function initializeMap() {
+      async function initializeMap() {
         const map = L.map('map').setView([18.5204, 73.8567], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors',
           maxZoom: 19
         }).addTo(map);
         
-        // Add demo markers
-        DEMO_LISTINGS.forEach(listing => {
-          const lat = 18.5204 + (Math.random() - 0.5) * 0.5;
-          const lng = 73.8567 + (Math.random() - 0.5) * 0.5;
-          L.marker([lat, lng], {
-            icon: L.icon({
-              iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQxMjgxNyIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyYzAgNy41IDEwIDIwIDEwIDIwczEwLTEyLjUgMTAtMjBjMC01LjUyLTQuNDgtMTAtMTAtMTB6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6Ii8+PC9zdmc+',
-              iconSize: [32, 40],
-              iconAnchor: [16, 40]
-            })
-          }).addTo(map).bindPopup(`<strong>${listing.title}</strong><br/>₹${(listing.price/100000).toFixed(1)}L`);
-        });
+        try {
+          const listings = await loadListings();
+          listings.forEach(listing => {
+            const lat = listing.latitude || 18.5204 + (Math.random() - 0.5) * 0.5;
+            const lng = listing.longitude || 73.8567 + (Math.random() - 0.5) * 0.5;
+            L.marker([lat, lng], {
+              icon: L.icon({
+                iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQxMjgxNyIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyYzAgNy41IDEwIDIwIDEwIDIwczEwLTEyLjUgMTAtMjBjMC01LjUyLTQuNDgtMTAtMTAtMTB6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6Ii8+PC9zdmc+',
+                iconSize: [32, 40],
+                iconAnchor: [16, 40]
+              })
+            }).addTo(map).bindPopup(`<a href="listing.html?id=${listing.id}"><strong>${listing.title}</strong></a><br/>₹${(listing.price/100000).toFixed(1)}L`);
+          });
+        } catch (e) {
+          console.error("Could not load listings for map", e);
+        }
       }
 
       // Initialize AOS

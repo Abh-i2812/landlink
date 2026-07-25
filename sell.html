@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css" type="text/css" />
     <style>
       body { background-color: #fff8f0; color: #1e1b16; }
       .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(130, 116, 109, 0.2); }
@@ -96,6 +98,11 @@
                     <option value="Sq.ft">Sq.ft</option>
                   </select>
                 </label>
+                <div class="mt-4">
+                  <label class="block text-sm font-semibold text-primary mb-2">Draw Boundary (Optional)</label>
+                  <p class="text-xs text-on-surface-variant mb-2">Use the polygon tool on the map to draw your property boundary. Area will be auto-calculated.</p>
+                  <div id="draw-map" style="height: 300px; border-radius: 16px; border: 1px solid #d3c3bb;"></div>
+                </div>
               </div>
             </div>
 
@@ -160,7 +167,7 @@
               </button>
             </div>
 
-            <p id="sell-status" class="mt-4 text-sm text-on-surface-variant text-center">💡 Demo mode: Your listing will be saved locally.</p>
+            <p id="sell-status" class="mt-4 text-sm text-on-surface-variant text-center">Submit posts to the live API (login as SELLER/AGENT first).</p>
           </div>
         </div>
       </div>
@@ -174,10 +181,17 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="./api.js"></script>
     <script src="./landing.js"></script>
     <script>
       let currentStep = 1;
       const totalSteps = 5;
+      let drawMap = null;
+      let drawControl = null;
+      let currentBoundary = null;
 
       function updateUI() {
         // Hide all steps
@@ -216,6 +230,10 @@
           if (currentStep < totalSteps) {
             currentStep++;
             updateUI();
+            if (currentStep === 2) {
+              if (!drawMap) setTimeout(initDrawMap, 100);
+              else setTimeout(() => drawMap.resize(), 100);
+            }
           }
         }
       }
@@ -224,6 +242,9 @@
         if (currentStep > 1) {
           currentStep--;
           updateUI();
+          if (currentStep === 2 && drawMap) {
+            setTimeout(() => drawMap.resize(), 100);
+          }
         }
       }
 
@@ -245,28 +266,31 @@
         return true;
       }
 
-      function submitListing() {
-        const listing = {
+      async function submitListing() {
+        const user = getStoredUser();
+        if (!user?.token) {
+          showLandingToast('Please login as SELLER or AGENT first');
+          navigateTo('auth.html');
+          return;
+        }
+        const payload = {
           title: document.getElementById('sell-title')?.value || 'Untitled',
-          type: document.getElementById('sell-type')?.value || 'AGRICULTURAL',
-          description: document.getElementById('sell-description')?.value,
-          city: document.getElementById('sell-city')?.value || 'Unknown',
-          area: parseFloat(document.getElementById('sell-area')?.value) || 0,
+          landType: document.getElementById('sell-type')?.value || 'AGRICULTURAL',
+          description: document.getElementById('sell-description')?.value || 'Seller submitted listing',
+          city: document.getElementById('sell-city')?.value || 'Pune',
+          area: parseFloat(document.getElementById('sell-area')?.value) || 1,
           unit: document.getElementById('sell-unit')?.value || 'Guntha',
           price: parseInt(document.getElementById('sell-price')?.value) || 0,
-          phone: document.getElementById('sell-phone')?.value || '',
-          email: document.getElementById('sell-email')?.value || '',
-          whatsapp: document.getElementById('sell-whatsapp')?.checked,
-          timestamp: new Date().toISOString()
+          status: 'PENDING',
+          boundary_geojson: currentBoundary ? JSON.stringify(currentBoundary) : null,
         };
-
-        // Save to localStorage
-        const listings = JSON.parse(localStorage.getItem('landlinkUserListings') || '[]');
-        listings.push(listing);
-        localStorage.setItem('landlinkUserListings', JSON.stringify(listings));
-
-        showLandingToast('✅ Listing saved! Admin will verify and publish soon.');
-        setTimeout(() => navigateTo('dashboard.html'), 1000);
+        try {
+          await LandLinkAPI.createListing(payload);
+          showLandingToast('Listing submitted for verification.');
+          setTimeout(() => navigateTo('dashboard.html'), 900);
+        } catch (err) {
+          showLandingToast(err.message);
+        }
       }
 
       // Update price per unit
@@ -276,6 +300,48 @@
         const perUnit = (price / area / 100000).toFixed(1);
         document.getElementById('price-per-unit').textContent = '₹ ' + perUnit + 'L per unit';
       });
+
+      function initDrawMap() {
+        mapboxgl.accessToken = localStorage.getItem("landlinkMapboxToken") || "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SY2O0Q1AMJ1e13A";
+        drawMap = new mapboxgl.Map({
+          container: 'draw-map',
+          style: 'mapbox://styles/mapbox/satellite-streets-v12',
+          center: [73.8567, 18.5204],
+          zoom: 12
+        });
+        
+        drawControl = new MapboxDraw({
+          displayControlsDefault: false,
+          controls: {
+            polygon: true,
+            trash: true
+          }
+        });
+        drawMap.addControl(drawControl);
+        
+        drawMap.on('draw.create', updateArea);
+        drawMap.on('draw.delete', updateArea);
+        drawMap.on('draw.update', updateArea);
+      }
+
+      function updateArea(e) {
+        const data = drawControl.getAll();
+        if (data.features.length > 0) {
+          const areaSqMeters = turf.area(data);
+          currentBoundary = data.features[0];
+          
+          const unit = document.getElementById('sell-unit')?.value || 'Guntha';
+          let finalArea = 0;
+          if (unit === 'Guntha') finalArea = areaSqMeters * 0.00988422;
+          else if (unit === 'Acre') finalArea = areaSqMeters * 0.000247105;
+          else if (unit === 'Hectare') finalArea = areaSqMeters / 10000;
+          else if (unit === 'Sq.ft') finalArea = areaSqMeters * 10.7639;
+          
+          document.getElementById('sell-area').value = finalArea.toFixed(2);
+        } else {
+          currentBoundary = null;
+        }
+      }
 
       document.addEventListener('DOMContentLoaded', () => {
         AOS.init({ duration: 800, once: true });

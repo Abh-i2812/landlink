@@ -13,105 +13,74 @@
     </style>
   </head>
   <body>
-    <!-- HEADER -->
     <header class="bg-primary shadow-md sticky top-0 z-40">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
           <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
         </a>
-        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed">
-          ← Back
-        </button>
+        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed">← Back</button>
       </div>
     </header>
 
     <main class="mx-auto max-w-7xl px-6 py-12">
       <h1 class="text-4xl font-bold text-primary mb-8">Compare Properties</h1>
-      <div id="compare-content"></div>
+      <div id="compare-content"><p class="text-sm">Loading…</p></div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="bg-primary text-on-primary py-12 mt-20">
-      <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
-        &copy; 2024 LandLink. All rights reserved.
-      </div>
+      <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">&copy; 2024 LandLink. All rights reserved.</div>
     </footer>
 
+    <script src="./api.js"></script>
     <script src="./landing.js"></script>
     <script>
-      function renderCompareTable() {
+      async function renderCompareTable() {
         const compareIds = getStoredCompare();
-        const compareListings = compareIds.map(id => DEMO_LISTINGS.find(l => l.id === parseInt(id))).filter(Boolean);
-
-        if (compareListings.length === 0) {
-          document.getElementById('compare-content').innerHTML = `
+        const box = document.getElementById('compare-content');
+        if (!compareIds.length) {
+          box.innerHTML = `
             <div class="rounded-3xl bg-white p-12 text-center shadow-md">
               <p class="text-lg text-on-surface-variant mb-6">No properties selected for comparison yet.</p>
-              <a href="browse.html" class="inline-block rounded-full bg-primary px-8 py-3 font-semibold text-on-primary hover:bg-primary-container">
-                Browse Properties
-              </a>
-            </div>
-          `;
+              <a href="browse.html" class="inline-block rounded-full bg-primary px-8 py-3 font-semibold text-on-primary">Browse Properties</a>
+            </div>`;
+          return;
+        }
+
+        const listings = [];
+        for (const id of compareIds) {
+          try {
+            const data = await LandLinkAPI.getListing(id);
+            if (data.listing) listings.push(data.listing);
+          } catch (_) {}
+        }
+
+        if (!listings.length) {
+          box.innerHTML = `<p class="text-red-700">Could not load compared listings from API.</p>`;
           return;
         }
 
         const rows = [
-          { label: 'Price', key: 'price', format: (v) => '₹' + (v / 10000000).toFixed(1) + ' Cr' },
-          { label: 'Area', key: 'area', format: (v, listing) => v + ' ' + listing.unit },
-          { label: 'Type', key: 'type', format: (v) => v.replace(/_/g, ' ') },
-          { label: 'Location', key: 'city' },
-          { label: 'Verified', key: 'verified', format: (v) => v ? '✓ Yes' : '✕ No' },
-          { label: 'Price/Unit', key: 'price', format: (v, listing) => '₹' + ((v / listing.area) / 100000).toFixed(1) + 'L' }
+          { label: 'Price', render: (l) => '₹' + formatPrice(l.price) },
+          { label: 'Area', render: (l) => `${l.area} ${l.unit}` },
+          { label: 'Type', render: (l) => String(l.type || '').replace(/_/g, ' ') },
+          { label: 'City', render: (l) => l.city },
+          { label: 'Status', render: (l) => l.verified ? 'Verified' : l.status },
         ];
 
-        const html = `
-          <div class="overflow-x-auto rounded-3xl shadow-md">
-            <table class="w-full bg-white">
-              <thead class="bg-primary text-on-primary">
-                <tr>
-                  <th class="p-4 text-left">Feature</th>
-                  ${compareListings.map((l, i) => `<th class="p-4 text-center">${l.title}</th>`).join('')}
+        box.innerHTML = `
+          <div class="overflow-auto rounded-3xl bg-white shadow-md">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="p-4 text-left">Field</th>
+                  ${listings.map((l) => `<th class="p-4 text-left"><a class="font-semibold text-primary underline" href="listing.html?id=${encodeURIComponent(l.id)}">${l.title}</a></th>`).join('')}
                 </tr>
               </thead>
               <tbody>
-                ${rows.map((row, idx) => `
-                  <tr class="${idx % 2 ? 'bg-surface-container' : 'bg-white'}">
-                    <td class="p-4 font-semibold text-primary">${row.label}</td>
-                    ${compareListings.map(listing => {
-                      const value = listing[row.key];
-                      const display = row.format ? row.format(value, listing) : value;
-                      return `<td class="p-4 text-center">${display}</td>`;
-                    }).join('')}
-                  </tr>
-                `).join('')}
-                <tr class="border-t-4 border-primary">
-                  <td class="p-4"></td>
-                  ${compareListings.map(listing => `
-                    <td class="p-4 text-center">
-                      <a href="listing.html?id=${listing.id}" class="inline-block rounded-full bg-secondary-fixed px-4 py-2 text-xs font-semibold text-on-secondary-container hover:bg-secondary-fixed/90">
-                        View Details →
-                      </a>
-                    </td>
-                  `).join('')}
-                </tr>
+                ${rows.map((r) => `<tr class="border-b"><td class="p-4 font-semibold">${r.label}</td>${listings.map((l) => `<td class="p-4">${r.render(l)}</td>`).join('')}</tr>`).join('')}
               </tbody>
             </table>
-          </div>
-
-          <div class="mt-8 text-center">
-            <button onclick="clearCompare()" class="rounded-full border-2 border-error px-6 py-3 font-semibold text-error hover:bg-error/10 active:scale-95 transition-all">
-              Clear Comparison
-            </button>
-          </div>
-        `;
-
-        document.getElementById('compare-content').innerHTML = html;
-      }
-
-      function clearCompare() {
-        setStoredArray(COMPARE_STORAGE_KEY, []);
-        showLandingToast('Comparison cleared');
-        renderCompareTable();
+          </div>`;
       }
 
       document.addEventListener('DOMContentLoaded', renderCompareTable);
