@@ -9,90 +9,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
-      body { background-color: #fff8f0; color: #1e1b16; }
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
       .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(130, 116, 109, 0.2); }
     </style>
   </head>
   <body>
-    <header class="bg-primary shadow-md sticky top-0 z-40">
+    <header class="bg-[#412817] text-white shadow-md sticky top-0 z-40">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
+        <a href="index.html" class="flex items-center gap-2 font-bold text-xl">
           <span class="material-symbols-outlined" style="color: #fdba4b;">location_on</span>LandLink
         </a>
-        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
-          <a href="index.html">Home</a>
-          <a href="browse.html">Browse</a>
-          <a href="sell.html" class="font-semibold">Sell</a>
-          <a href="about.html">About</a>
-          <a href="contact.html">Contact</a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm opacity-90">
+          <a href="index.html" class="hover:text-[#fdba4b]">Home</a>
+          <a href="browse.html" class="hover:text-[#fdba4b]">Browse</a>
+          <a href="sell.html" class="font-semibold text-[#fdba4b]">Sell</a>
+          <a href="about.html" class="hover:text-[#fdba4b]">About</a>
+          <a href="contact.html" class="hover:text-[#fdba4b]">Contact</a>
         </nav>
       </div>
     </header>
 
     <main class="mx-auto max-w-3xl px-6 py-16">
       <div data-aos="fade-up" class="text-center mb-10">
-        <p class="mb-3 inline-flex rounded-full bg-secondary-fixed/20 px-3 py-1 text-sm font-semibold text-primary">List Your Property</p>
-        <h1 class="text-4xl font-bold text-primary">Post Your Land</h1>
-        <p class="mt-4 text-on-surface-variant">Submit your property details and our team will review your listing.</p>
+        <p class="mb-3 inline-flex rounded-full bg-[#fdba4b]/20 px-3 py-1 text-sm font-semibold text-[#412817]">List Your Property</p>
+        <h1 class="text-4xl font-bold text-[#412817]">Post Your Land</h1>
+        <p class="mt-4 text-[#50453e]">Submit your property details and your listing will be published immediately on the homepage.</p>
       </div>
 
-      <!-- Signed-out prompt -->
-      <div id="property-signin-prompt" class="hidden rounded-3xl bg-white p-10 shadow-lg text-center" data-aos="fade-up">
-        <span class="material-symbols-outlined text-5xl text-primary mb-4">lock</span>
-        <h2 class="text-2xl font-bold text-primary mb-3">Sign in to list your property</h2>
-        <p class="text-on-surface-variant mb-6">You need a Google account to submit a property listing.</p>
-        <a href="index.html" class="inline-flex items-center gap-2 rounded-full bg-secondary-fixed px-6 py-3 font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all">
-          Sign in with Google on Home
-        </a>
-      </div>
-
-      <!-- Property form (signed-in only) -->
-      <div id="property-form-section" class="hidden glass-card rounded-3xl bg-white p-8 shadow-lg" data-aos="fade-up">
+      <!-- Property form -->
+      <div id="property-form-section" class="glass-card rounded-3xl bg-white p-8 shadow-lg" data-aos="fade-up">
         <form id="property-form" class="space-y-4">
-          <label class="block text-sm font-semibold text-primary">
-            Property Title <span class="text-error">*</span>
-            <input id="property-title" name="property_title" type="text" required placeholder="e.g., Agricultural land near Pune" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+          <label class="block text-sm font-semibold text-[#412817]">
+            Property Title <span class="text-red-600">*</span>
+            <input id="property-title" name="property_title" type="text" required placeholder="e.g., Agricultural land near Pune" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
-            Property Type <span class="text-error">*</span>
-            <select id="property-type" name="property_type" required class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+          <label class="block text-sm font-semibold text-[#412817]">
+            Property Type <span class="text-red-600">*</span>
+            <select id="property-type" name="property_type" required class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]">
               <option value="">Select type</option>
               <option value="Agricultural">Agricultural</option>
-              <option value="NA">NA</option>
-              <option value="Residential">Residential</option>
+              <option value="NA Residential">NA Residential</option>
               <option value="Commercial">Commercial</option>
               <option value="Industrial">Industrial</option>
               <option value="Farmhouse">Farmhouse</option>
             </select>
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
+          <label class="block text-sm font-semibold text-[#412817]">
             Location
-            <input id="property-location" name="location" type="text" placeholder="e.g., Pune, Maharashtra" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            <input id="property-location" name="location" type="text" placeholder="e.g., Pune, Maharashtra" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
+          <label class="block text-sm font-semibold text-[#412817]">
             Size
-            <input id="property-size" name="size" type="text" placeholder='e.g., 2 acres' class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            <input id="property-size" name="size" type="text" placeholder='e.g., 2 acres' class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
+          <label class="block text-sm font-semibold text-[#412817]">
             Asking Price (₹)
-            <input id="property-price" name="asking_price" type="number" min="0" step="1" placeholder="4500000" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            <input id="property-price" name="asking_price" type="number" min="0" step="1" placeholder="4500000" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
+          <label class="block text-sm font-semibold text-[#412817]">
+            Property Image URL (Optional)
+            <input id="property-image" name="image_url" type="url" placeholder="e.g., https://images.unsplash.com/photo-1500382017468-9049fed747ef" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
+          </label>
+
+          <label class="block text-sm font-semibold text-[#412817]">
             Description
-            <textarea id="property-description" name="description" rows="4" placeholder="Describe the property, features, soil quality, etc." class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary"></textarea>
+            <textarea id="property-description" name="description" rows="4" placeholder="Describe the property, features, soil quality, etc." class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]"></textarea>
           </label>
 
-          <label class="block text-sm font-semibold text-primary">
+          <label class="block text-sm font-semibold text-[#412817]">
+            Your Name
+            <input id="property-seller-name" name="seller_name" type="text" placeholder="Your Name" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
+          </label>
+
+          <label class="block text-sm font-semibold text-[#412817]">
             Your Phone Number
-            <input id="property-phone" name="seller_phone" type="tel" placeholder="9876543210" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
+            <input id="property-phone" name="seller_phone" type="tel" placeholder="9876543210" class="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdba4b]" />
           </label>
 
-          <button id="property-submit-btn" type="submit" class="w-full rounded-full bg-primary px-4 py-3 font-semibold text-on-primary hover:bg-primary-container active:scale-95 transition-all">
+          <button id="property-submit-btn" type="submit" class="w-full rounded-full bg-[#412817] px-4 py-3 font-semibold text-white hover:bg-[#5a3e2b] active:scale-95 transition-all shadow-md">
             Submit Listing
           </button>
 
@@ -101,59 +100,25 @@
       </div>
     </main>
 
-    <footer class="bg-primary text-on-primary py-12 mt-20">
+    <footer class="bg-[#412817] text-white py-12 mt-20">
       <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
         &copy; 2024 LandLink. All rights reserved.
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
-    <script src="./landing.js"></script>
     <script src="./site-common.js"></script>
+    <script src="./whatsapp.js"></script>
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
       import { supabase, showFormStatus, clearFormStatus } from "./supabase.js";
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyAKXAyeJvxeNWf_IajCJOmeGpqPyTzbE_c",
-        authDomain: "landlink-92fff.firebaseapp.com",
-        projectId: "landlink-92fff",
-        storageBucket: "landlink-92fff.firebasestorage.app",
-        messagingSenderId: "783116475376",
-        appId: "1:783116475376:web:3a9a1e51e73352c75adb35"
-      };
-
-      initializeApp(firebaseConfig);
-      const auth = getAuth();
-
-      const signinPrompt = document.getElementById("property-signin-prompt");
-      const formSection = document.getElementById("property-form-section");
       const form = document.getElementById("property-form");
       const statusEl = document.getElementById("property-form-status");
       const submitBtn = document.getElementById("property-submit-btn");
 
-      let currentUser = null;
-
-      onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        if (user) {
-          signinPrompt.classList.add("hidden");
-          formSection.classList.remove("hidden");
-        } else {
-          signinPrompt.classList.remove("hidden");
-          formSection.classList.add("hidden");
-        }
-      });
-
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearFormStatus(statusEl);
-
-        if (!currentUser) {
-          showFormStatus(statusEl, "Please sign in with Google before submitting.", true);
-          return;
-        }
 
         const title = document.getElementById("property-title").value.trim();
         const propertyType = document.getElementById("property-type").value;
@@ -164,6 +129,7 @@
 
         const askingPriceRaw = document.getElementById("property-price").value;
         const askingPrice = askingPriceRaw ? Number(askingPriceRaw) : null;
+        const imageUrl = document.getElementById("property-image").value.trim() || null;
 
         submitBtn.disabled = true;
         submitBtn.textContent = "Submitting…";
@@ -174,9 +140,10 @@
           location: document.getElementById("property-location").value.trim() || null,
           size: document.getElementById("property-size").value.trim() || null,
           asking_price: askingPrice,
+          image_url: imageUrl,
           description: document.getElementById("property-description").value.trim() || null,
-          seller_name: currentUser.displayName || "",
-          seller_email: currentUser.email || "",
+          seller_name: document.getElementById("property-seller-name").value.trim() || "Land Seller",
+          seller_email: "",
           seller_phone: document.getElementById("property-phone").value.trim() || null,
         });
 
@@ -188,7 +155,7 @@
           return;
         }
 
-        showFormStatus(statusEl, "Your property has been submitted successfully! We will review it shortly.");
+        showFormStatus(statusEl, "Your property has been submitted successfully! It is now live on the homepage.");
         form.reset();
       });
 

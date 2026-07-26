@@ -9,7 +9,6 @@
       if (stored) return stored.replace(/\/$/, "");
     } catch (_) {}
     if (typeof location !== "undefined" && /^https?:/.test(location.origin) && !location.port.match(/5500|8080/)) {
-      // Same-origin Next.js serve
       if (location.port === "3000") return location.origin;
     }
     return DEFAULT_API_BASE;
@@ -90,24 +89,6 @@
       return data;
     },
 
-    async adminLogin(username, password) {
-      const data = await request("/api/auth/admin-login", {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
-      if (data?.ok && data.user) {
-        setUser({
-          id: data.user.id,
-          phone: data.user.phone,
-          name: data.user.name || "Admin",
-          role: "ADMIN",
-          token: data.token,
-          loggedInAt: new Date().toISOString(),
-        });
-      }
-      return data;
-    },
-
     getListings(params = {}) {
       const qs = new URLSearchParams();
       Object.entries(params).forEach(([k, v]) => {
@@ -152,67 +133,7 @@
         method: "POST",
         body: JSON.stringify(payload),
       });
-    },
-
-    admin: {
-      stats() {
-        return request("/api/admin/stats");
-      },
-      users(role) {
-        const q = role ? `?role=${encodeURIComponent(role)}` : "";
-        return request(`/api/admin/users${q}`);
-      },
-      updateUser(id, action) {
-        return request(`/api/admin/users/${encodeURIComponent(id)}`, {
-          method: "PUT",
-          body: JSON.stringify({ action }),
-        });
-      },
-      listings(status) {
-        const q = status ? `?status=${encodeURIComponent(status)}` : "";
-        return request(`/api/admin/listings${q}`);
-      },
-      updateListing(id, action) {
-        return request(`/api/admin/listings/${encodeURIComponent(id)}`, {
-          method: "PUT",
-          body: JSON.stringify({ action }),
-        });
-      },
-      appointments(status) {
-        const q = status ? `?status=${encodeURIComponent(status)}` : "";
-        return request(`/api/admin/appointments${q}`);
-      },
-      reports() {
-        return request("/api/admin/reports");
-      },
-      resolveReport(id, status) {
-        return request("/api/admin/reports", {
-          method: "PUT",
-          body: JSON.stringify({ id, status }),
-        });
-      },
-      weekly() {
-        return request("/api/admin/analytics/weekly");
-      },
-      blog() {
-        return request("/api/admin/blog");
-      },
-      createBlog(payload) {
-        return request("/api/admin/blog", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-      },
-      settings() {
-        return request("/api/admin/settings");
-      },
-      saveSettings(payload) {
-        return request("/api/admin/settings", {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
-      },
-    },
+    }
   };
 
   global.LandLinkAPI = LandLinkAPI;

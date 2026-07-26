@@ -5,80 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LandLink Compare Properties</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
-      body { background-color: #fff8f0; color: #1e1b16; }
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
       .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
     </style>
   </head>
   <body>
-    <header class="bg-primary shadow-md sticky top-0 z-40">
+    <header class="bg-[#412817] text-white shadow-md sticky top-0 z-40">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
-          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        <a href="index.html" class="flex items-center gap-2 font-bold text-xl">
+          <span class="material-symbols-outlined text-[#fdba4b]">location_on</span>LandLink
         </a>
-        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed">← Back</button>
+        <button onclick="window.history.back()" class="hover:text-[#fdba4b]">← Back</button>
       </div>
     </header>
 
     <main class="mx-auto max-w-7xl px-6 py-12">
-      <h1 class="text-4xl font-bold text-primary mb-8">Compare Properties</h1>
-      <div id="compare-content"><p class="text-sm">Loading…</p></div>
+      <h1 class="text-4xl font-bold text-[#412817] mb-8">Compare Properties</h1>
+      <div id="compare-content"><p class="text-sm">Loading comparison...</p></div>
     </main>
 
-    <footer class="bg-primary text-on-primary py-12 mt-20">
+    <footer class="bg-[#412817] text-white py-12 mt-20">
       <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">&copy; 2024 LandLink. All rights reserved.</div>
     </footer>
 
-    <script src="./api.js"></script>
-    <script src="./landing.js"></script>
     <script src="./site-common.js"></script>
-    <script>
+    <script src="./whatsapp.js"></script>
+    <script type="module" src="./landing.js"></script>
+    <script type="module">
+      import { loadListings, formatPrice, getStoredCompare } from "./landing.js";
+
       async function renderCompareTable() {
         const compareIds = getStoredCompare();
         const box = document.getElementById('compare-content');
         if (!compareIds.length) {
           box.innerHTML = `
-            <div class="rounded-3xl bg-white p-12 text-center shadow-md">
-              <p class="text-lg text-on-surface-variant mb-6">No properties selected for comparison yet.</p>
-              <a href="browse.html" class="inline-block rounded-full bg-primary px-8 py-3 font-semibold text-on-primary">Browse Properties</a>
+            <div class="rounded-3xl bg-white p-12 text-center shadow-md border border-amber-900/10">
+              <p class="text-lg text-[#50453e] mb-6">No properties selected for comparison yet.</p>
+              <a href="browse.html" class="inline-block rounded-full bg-[#412817] px-8 py-3 font-semibold text-white hover:bg-[#5a3e2b]">Browse Properties</a>
             </div>`;
           return;
         }
 
-        const listings = [];
-        for (const id of compareIds) {
-          try {
-            const data = await LandLinkAPI.getListing(id);
-            if (data.listing) listings.push(data.listing);
-          } catch (_) {}
-        }
+        const allListings = await loadListings();
+        const listings = allListings.filter(l => compareIds.includes(String(l.id)));
 
         if (!listings.length) {
-          box.innerHTML = `<p class="text-red-700">Could not load compared listings from API.</p>`;
+          box.innerHTML = `<div class="rounded-3xl bg-white p-12 text-center shadow-md border border-amber-900/10">
+            <p class="text-gray-500 mb-4">The selected properties could not be loaded.</p>
+            <a href="browse.html" class="inline-block rounded-full bg-[#412817] px-6 py-2.5 text-sm font-semibold text-white">Return to Browse</a>
+          </div>`;
           return;
         }
 
         const rows = [
-          { label: 'Price', render: (l) => '₹' + formatPrice(l.price) },
-          { label: 'Area', render: (l) => `${l.area} ${l.unit}` },
-          { label: 'Type', render: (l) => String(l.type || '').replace(/_/g, ' ') },
-          { label: 'City', render: (l) => l.city },
-          { label: 'Status', render: (l) => l.verified ? 'Verified' : l.status },
+          { label: 'Price', render: (l) => '₹ ' + formatPrice(l.price) },
+          { label: 'Area / Size', render: (l) => `${l.area}` },
+          { label: 'Land Type', render: (l) => String(l.type || '').replace(/_/g, ' ') },
+          { label: 'City / Location', render: (l) => l.city },
+          { label: 'Description', render: (l) => l.description || '-' },
         ];
 
         box.innerHTML = `
-          <div class="overflow-auto rounded-3xl bg-white shadow-md">
+          <div class="overflow-auto rounded-3xl bg-white shadow-md border border-amber-900/10">
             <table class="min-w-full text-sm">
               <thead>
-                <tr class="border-b">
-                  <th class="p-4 text-left">Field</th>
-                  ${listings.map((l) => `<th class="p-4 text-left"><a class="font-semibold text-primary underline" href="listing.html?id=${encodeURIComponent(l.id)}">${l.title}</a></th>`).join('')}
+                <tr class="border-b bg-amber-50/50">
+                  <th class="p-4 text-left font-bold text-[#412817]">Field</th>
+                  ${listings.map((l) => `<th class="p-4 text-left"><a class="font-semibold text-[#412817] underline" href="listing.html?id=${encodeURIComponent(l.id)}">${l.title}</a></th>`).join('')}
                 </tr>
               </thead>
               <tbody>
-                ${rows.map((r) => `<tr class="border-b"><td class="p-4 font-semibold">${r.label}</td>${listings.map((l) => `<td class="p-4">${r.render(l)}</td>`).join('')}</tr>`).join('')}
+                ${rows.map((r) => `<tr class="border-b hover:bg-gray-50"><td class="p-4 font-semibold text-[#412817]">${r.label}</td>${listings.map((l) => `<td class="p-4 text-[#50453e]">${r.render(l)}</td>`).join('')}</tr>`).join('')}
               </tbody>
             </table>
           </div>`;

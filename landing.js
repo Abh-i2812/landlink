@@ -1,16 +1,58 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const supabase = createClient(
+  'https://duvpdircogolckotzjra.supabase.co',
+  'sb_publishable_DUsDj3ZsdfJeQcVPcnvNuw_e_YtfnuD'
+);
+
 const USER_STORAGE_KEY = "landlinkUser";
 const FAVORITES_STORAGE_KEY = "landlinkFavorites";
 const COMPARE_STORAGE_KEY = "landlinkCompare";
 
 let CACHED_LISTINGS = [];
 
-function api() {
-  return window.LandLinkAPI;
-}
-
-function isApiReady() {
-  return Boolean(window.LandLinkAPI);
-}
+// Sample fallback listings if database has 0 items initially
+const FALLBACK_LISTINGS = [
+  {
+    id: "fb-1",
+    title: "Agricultural Land Near Pune Expressway",
+    type: "AGRICULTURAL",
+    city: "Pune",
+    area: "2 Acres",
+    unit: "",
+    price: 4500000,
+    description: "Fertile agricultural plot with abundant water supply, near Pune-Bangalore highway.",
+    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80",
+    verified: true,
+    status: "ACTIVE"
+  },
+  {
+    id: "fb-2",
+    title: "NA Residential Plot in Hinjewadi Phase 3",
+    type: "NA_RESIDENTIAL",
+    city: "Hinjewadi",
+    area: "3,000 Sq.ft",
+    unit: "",
+    price: 3200000,
+    description: "Clear title NA plot ideal for bungalows or apartment construction, near IT park.",
+    image: "https://images.unsplash.com/photo-1524813686514-a57563d77965?w=800&q=80",
+    verified: true,
+    status: "ACTIVE"
+  },
+  {
+    id: "fb-3",
+    title: "Commercial Corner Land on Chakan Highway",
+    type: "COMMERCIAL",
+    city: "Chakan",
+    area: "1.5 Acres",
+    unit: "",
+    price: 12500000,
+    description: "Prime highway touching land suitable for showroom, warehouse, or commercial complex.",
+    image: "https://images.unsplash.com/photo-1592595896551-12b371d546d5?w=800&q=80",
+    verified: true,
+    status: "ACTIVE"
+  }
+];
 
 function safeQuery(selector) {
   return document.querySelector(selector);
@@ -58,23 +100,12 @@ function showLandingToast(message) {
 }
 
 function getStoredUser() {
-  if (isApiReady()) return api().getUser();
   try {
     const raw = localStorage.getItem(USER_STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch (err) {
     return null;
   }
-}
-
-function setStoredUser(user) {
-  if (isApiReady()) api().setUser(user);
-  else localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-}
-
-function clearStoredUser() {
-  if (isApiReady()) api().clearUser();
-  else localStorage.removeItem(USER_STORAGE_KEY);
 }
 
 function getStoredArray(key) {
@@ -118,57 +149,60 @@ function formatPrice(price) {
 }
 
 async function loadListings(params = {}) {
-  if (!isApiReady()) throw new Error("api.js not loaded");
-  const data = await api().getListings(params);
-  CACHED_LISTINGS = data.listings || [];
-  return CACHED_LISTINGS;
-}
-
-async function sendOtpCode(phone) {
-  if (!phone) {
-    showLandingToast("Enter a mobile number first.");
-    return false;
-  }
   try {
-    await api().sendOtp(phone);
-    showLandingToast("OTP sent. Check server console if Twilio is not configured.");
-    return true;
-  } catch (error) {
-    showLandingToast(error.message);
-    return false;
-  }
-}
+    let { data, error } = await supabase
+      .from("properties")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-async function verifyOtpCode(phone, code, name, role) {
-  if (!phone || !code || String(code).length !== 6) {
-    showLandingToast("Enter a valid phone and 6-digit code.");
-    return false;
-  }
-  try {
-    await api().verifyOtp({ phone, code, name, role });
-    showLandingToast("Login successful. Redirecting...");
-    setTimeout(() => navigateTo("dashboard.html"), 800);
-    return true;
-  } catch (error) {
-    showLandingToast(error.message);
-    return false;
-  }
-}
+    if (error) {
+      console.warn("Supabase fetch notice:", error.message);
+      data = [];
+    }
 
-function updateLoginButton() {
-  const loginButton = safeQuery("#landing-login");
-  const user = getStoredUser();
-  if (!loginButton) return;
-  loginButton.textContent = user ? "Dashboard" : "Login / Sign Up";
-}
+    let listings = (data || []).map(row => ({
+      id: row.id,
+      title: row.property_title || row.title || "Land Plot",
+      type: String(row.property_type || row.type || "AGRICULTURAL").toUpperCase().replace(/\s+/g, "_"),
+      city: row.location || row.city || "Pune",
+      area: row.size || row.area || "1 Acre",
+      unit: "",
+      price: row.asking_price ?? row.price ?? 0,
+      description: row.description || "",
+      image: row.image_url || row.image || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80",
+      seller_name: row.seller_name || "",
+      seller_phone: row.seller_phone || "",
+      seller_email: row.seller_email || "",
+      verified: true,
+      status: "ACTIVE"
+    }));
 
-function updateBrowseStatus() {
-  const favorites = getStoredFavorites();
-  const compare = getStoredCompare();
-  const favoritesCount = safeQuery("#browse-favorites-count");
-  const compareCount = safeQuery("#browse-compare-count");
-  if (favoritesCount) favoritesCount.textContent = favorites.length;
-  if (compareCount) compareCount.textContent = compare.length;
+    if (listings.length === 0) {
+      listings = [...FALLBACK_LISTINGS];
+    }
+
+    // Apply front-end filtering if params passed
+    if (params.city) {
+      const c = params.city.toLowerCase();
+      listings = listings.filter(l => l.city.toLowerCase().includes(c) || l.title.toLowerCase().includes(c));
+    }
+    if (params.landType) {
+      const t = params.landType.toUpperCase().replace(/\s+/g, "_");
+      listings = listings.filter(l => l.type.includes(t) || t.includes(l.type));
+    }
+    if (params.minPrice) {
+      listings = listings.filter(l => l.price >= Number(params.minPrice));
+    }
+    if (params.maxPrice) {
+      listings = listings.filter(l => l.price <= Number(params.maxPrice));
+    }
+
+    CACHED_LISTINGS = listings;
+    return CACHED_LISTINGS;
+  } catch (err) {
+    console.warn("Error loading listings:", err);
+    return FALLBACK_LISTINGS;
+  }
 }
 
 function synchronizeSavedButtons() {
@@ -190,225 +224,13 @@ function synchronizeSavedButtons() {
   });
 }
 
-function toggleMobileMenu() {
-  const mobileMenu = document.getElementById("mobile-menu");
-  if (!mobileMenu) return;
-  const isHidden =
-    mobileMenu.style.transform === "translateX(-100%)" || mobileMenu.style.display === "none";
-  if (isHidden) {
-    mobileMenu.style.transform = "translateX(0)";
-    mobileMenu.style.display = "block";
-  } else {
-    mobileMenu.style.transform = "translateX(-100%)";
-    mobileMenu.style.display = "none";
-  }
-}
-
-function closeMobileMenu() {
-  const mobileMenu = document.getElementById("mobile-menu");
-  if (!mobileMenu) return;
-  mobileMenu.style.transform = "translateX(-100%)";
-  mobileMenu.style.display = "none";
-}
-
-function attachLandingEvents() {
-  const loginButton = safeQuery("#landing-login");
-  const postButton = safeQuery("#landing-post");
-  const searchButton = safeQuery("#landing-search");
-  const viewAllButton = safeQuery("#landing-view-all");
-  const listLandButton = safeQuery("#landing-list-land");
-
-  if (loginButton)
-    loginButton.addEventListener("click", () =>
-      navigateTo(getStoredUser() ? "dashboard.html" : "auth.html"),
-    );
-  if (postButton) postButton.addEventListener("click", () => navigateTo("sell.html"));
-  if (viewAllButton) viewAllButton.addEventListener("click", () => navigateTo("browse.html"));
-  if (listLandButton) listLandButton.addEventListener("click", () => navigateTo("sell.html"));
-  if (searchButton)
-    searchButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      navigateTo(buildSearchUrl());
-    });
-
-  document.querySelectorAll("[data-landing-location]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const city = button.getAttribute("data-landing-location");
-      navigateTo(`browse.html?city=${encodeURIComponent(city)}`);
-    });
-  });
-
-  document.querySelectorAll("[data-landing-landtype]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const landType = button.getAttribute("data-landing-landtype");
-      navigateTo(`browse.html?landType=${encodeURIComponent(landType)}`);
-    });
-  });
-}
-
-function attachAuthPageEvents() {
-  const sendButton = safeQuery("#auth-send-otp");
-  const verifyButton = safeQuery("#auth-verify-otp");
-  const phoneInput = safeQuery("#auth-phone");
-  const nameInput = safeQuery("#auth-name");
-  const roleSelect = safeQuery("#auth-role");
-  const codeInput = safeQuery("#auth-code");
-  const statusText = safeQuery("#auth-status");
-
-  function setStatus(message, isError = false) {
-    if (!statusText) return;
-    statusText.textContent = message;
-    statusText.style.color = isError ? "#ba1a1a" : "#3E2723";
-  }
-
-  if (statusText) {
-    setStatus("Connected to API at " + (api()?.getApiBase?.() || "http://localhost:3000") + ". Dev OTP: 123456");
-  }
-
-  if (sendButton) {
-    sendButton.addEventListener("click", async () => {
-      const phone = phoneInput?.value.trim();
-      if (!phone) {
-        setStatus("Enter your mobile number first.", true);
-        return;
-      }
-      const success = await sendOtpCode(phone);
-      if (success) setStatus("OTP sent. Use the code from the server console, or 123456 in local mode.");
-    });
-  }
-
-  if (verifyButton) {
-    verifyButton.addEventListener("click", async () => {
-      const phone = phoneInput?.value.trim();
-      const code = codeInput?.value.trim();
-      const name = nameInput?.value.trim();
-      const role = roleSelect?.value || "BUYER";
-      const success = await verifyOtpCode(phone, code, name, role);
-      if (success) setStatus("Login succeeded. Redirecting...");
-    });
-  }
-}
-
-function attachGenericNavEvents() {
-  document.querySelectorAll("[data-nav]").forEach((link) => {
-    const target = link.getAttribute("data-nav");
-    if (target) {
-      link.addEventListener("click", (event) => {
-        event.preventDefault();
-        navigateTo(target);
-      });
-    }
-  });
-}
-
-function attachBrowsePageEvents() {
-  const user = getStoredUser();
-  const statusText = safeQuery("#browse-status");
-
-  if (statusText) {
-    statusText.textContent = user
-      ? `Welcome back, ${user.name || user.phone}. Browse live listings from the API.`
-      : "Browse live listings. Login to sync favorites to your account.";
-  }
-
-  document.getElementById("listings-container")?.addEventListener("click", async (event) => {
-    const button = event.target.closest("[data-favorite-button]");
-    if (!button) return;
-    const id = String(button.getAttribute("data-favorite-button"));
-    const favorites = getStoredFavorites();
-    const isSaved = favorites.includes(id);
-    toggleSavedItem(FAVORITES_STORAGE_KEY, id, !isSaved);
-    synchronizeSavedButtons();
-    updateBrowseStatus();
-    if (getStoredUser()?.token) {
-      try {
-        await api().toggleFavorite(id);
-      } catch (err) {
-        showLandingToast(err.message);
-      }
-    }
-    showLandingToast(!isSaved ? "Added to favorites." : "Removed from favorites.");
-  });
-
-  document.getElementById("listings-container")?.addEventListener("change", (event) => {
-    const checkbox = event.target.closest("[data-compare-checkbox]");
-    if (!checkbox) return;
-    const id = String(checkbox.getAttribute("data-compare-id"));
-    toggleSavedItem(COMPARE_STORAGE_KEY, id, checkbox.checked);
-    updateBrowseStatus();
-    renderCompareBar();
-    showLandingToast(checkbox.checked ? "Added to compare list." : "Removed from compare list.");
-  });
-
-  synchronizeSavedButtons();
-  updateBrowseStatus();
-}
-
-function attachSellPageEvents() {
-  const sellStatus = safeQuery("#sell-status");
-  if (!sellStatus) return;
-  const user = getStoredUser();
-  sellStatus.textContent = user
-    ? `Logged in as ${user.name || user.phone}. Submit posts to ${api().getApiBase()}.`
-    : "Please login as SELLER/AGENT before publishing. API: " + api().getApiBase();
-}
-
-async function attachDashboardPageEvents() {
-  const greeting = safeQuery("#dashboard-greeting");
-  const details = safeQuery("#dashboard-details");
-  const logoutButton = safeQuery("#dashboard-logout");
-  const user = getStoredUser();
-
-  if (!user) {
-    if (greeting) greeting.textContent = "Please sign in";
-    if (details) details.textContent = "No authenticated user detected. Use auth.html to sign in with OTP.";
-  } else {
-    if (greeting) greeting.textContent = `Welcome back, ${user.name || "LandLink user"}!`;
-    if (details)
-      details.textContent = `Phone: ${user.phone} • Role: ${user.role} • API: ${api().getApiBase()}`;
-  }
-
-  const favBox = document.getElementById("dashboard-favorites");
-  if (favBox && user?.token) {
-    try {
-      const data = await api().getFavorites();
-      const items = data.favorites || [];
-      favBox.innerHTML = items.length
-        ? items
-            .map(
-              (f) =>
-                `<li><a class="text-[#412817] underline" href="listing.html?id=${f.listingId}">${f.title || f.listingId}</a> — ${f.city || ""}</li>`,
-            )
-            .join("")
-        : "<li>No saved favorites yet.</li>";
-    } catch (err) {
-      favBox.innerHTML = `<li>${err.message}</li>`;
-    }
-  }
-
-  if (logoutButton) {
-    logoutButton.addEventListener("click", () => {
-      clearStoredUser();
-      showLandingToast("Logged out successfully.");
-      updateLoginButton();
-      setTimeout(() => navigateTo("index.html"), 400);
-    });
-  }
-}
-
-function populateBrowseFilters() {
-  const params = getQueryParams();
-  const mappings = {
-    "browse-city": "city",
-    "browse-landtype": "landType",
-    "browse-minprice": "minPrice",
-    "browse-maxprice": "maxPrice",
-    "browse-area": "area",
-  };
-  Object.entries(mappings).forEach(([id, param]) => {
-    const element = safeQuery(`#${id}`);
-    if (element && params.has(param)) element.value = params.get(param);
-  });
+function updateBrowseStatus() {
+  const favorites = getStoredFavorites();
+  const compare = getStoredCompare();
+  const favoritesCount = safeQuery("#browse-favorites-count");
+  const compareCount = safeQuery("#browse-compare-count");
+  if (favoritesCount) favoritesCount.textContent = favorites.length;
+  if (compareCount) compareCount.textContent = compare.length;
 }
 
 function renderCompareBar() {
@@ -439,25 +261,24 @@ function renderCompareBar() {
 
 function listingCardHtml(listing, favorites, compare) {
   const id = String(listing.id);
-  const verified = listing.verified || listing.status === "ACTIVE";
   return `
-    <article class="rounded-[32px] border border-[#d3c3bb]/15 bg-white shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+    <article class="rounded-[32px] border border-[#d3c3bb]/20 bg-white shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
       <div class="h-56 bg-cover bg-center" style="background-image:url('${listing.image}');"></div>
       <div class="p-6">
-        <p class="text-xs uppercase tracking-[0.25em] text-[#5a3e2b]">${String(listing.type || listing.landType || "").replace(/_/g, " ")}</p>
+        <p class="text-xs uppercase tracking-[0.25em] font-bold text-[#5a3e2b]">${String(listing.type || "").replace(/_/g, " ")}</p>
         <h2 class="mt-3 text-2xl font-semibold text-[#3e2723]">${listing.title}</h2>
-        <p class="mt-3 text-sm leading-6 text-[#5a5145]">${listing.area || ""} ${listing.unit || "Guntha"} in ${listing.city}${verified ? " • verified" : ""}.</p>
+        <p class="mt-3 text-sm leading-6 text-[#5a5145]">${listing.area || ""} in ${listing.city}.</p>
         <div class="mt-6 flex flex-col gap-3 text-sm text-[#5a5145] sm:flex-row sm:items-center sm:justify-between">
-          <span class="font-bold text-[#3e2723]">₹ ${formatPrice(listing.price)}</span>
+          <span class="font-bold text-[#3e2723] text-xl">₹ ${formatPrice(listing.price)}</span>
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" data-favorite-button="${id}" class="rounded-full ${favorites.includes(id) ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-[#fff4e7]"} px-3 py-2 text-[#5a3e2b] text-xs cursor-pointer transition-all">${favorites.includes(id) ? "Favorited" : "Favorite"}</button>
-            <label class="inline-flex items-center gap-2 rounded-full bg-[#fff4e7] px-3 py-2 text-[#5a3e2b] text-xs cursor-pointer">
+            <button type="button" data-favorite-button="${id}" class="rounded-full ${favorites.includes(id) ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-[#fff4e7]"} px-3 py-2 text-[#5a3e2b] text-xs font-semibold cursor-pointer transition-all">${favorites.includes(id) ? "Favorited" : "Favorite"}</button>
+            <label class="inline-flex items-center gap-2 rounded-full bg-[#fff4e7] px-3 py-2 text-[#5a3e2b] text-xs cursor-pointer font-semibold">
               <input data-compare-checkbox data-compare-id="${id}" type="checkbox" ${compare.includes(id) ? "checked" : ""} class="rounded cursor-pointer" />
               Compare
             </label>
           </div>
         </div>
-        <a href="listing.html?id=${encodeURIComponent(id)}" class="mt-4 block text-center rounded-full bg-secondary-container px-4 py-2 text-xs font-semibold text-on-secondary-container hover:bg-secondary-fixed transition-colors">View Details</a>
+        <a href="listing.html?id=${encodeURIComponent(id)}" class="mt-4 block text-center rounded-full bg-secondary-container px-4 py-2.5 text-xs font-semibold text-on-secondary-container hover:bg-secondary-fixed transition-colors">View Details</a>
       </div>
     </article>
   `;
@@ -469,42 +290,94 @@ async function renderFeaturedListings() {
 
   const favorites = getStoredFavorites();
   const compare = getStoredCompare();
-  container.innerHTML = `<p class="text-sm text-[#5a5145]">Loading listings from API...</p>`;
+  container.innerHTML = `<p class="text-sm text-[#5a5145]">Loading properties...</p>`;
 
-  try {
-    const listings = await loadListings({ take: 8, status: "ACTIVE" });
-    if (!listings.length) {
-      container.innerHTML = `<p class="text-sm text-[#ba1a1a]">No listings found. Start the Next.js API and run <code>npm run seed</code>.</p>`;
-      return;
-    }
-    container.innerHTML = listings.slice(0, 8).map((l) => listingCardHtml(l, favorites, compare)).join("");
-    synchronizeSavedButtons();
-  } catch (err) {
-    container.innerHTML = `<p class="text-sm text-[#ba1a1a]">API unavailable (${err.message}). Start backend at ${api()?.getApiBase?.() || "http://localhost:3000"}.</p>`;
+  const listings = await loadListings();
+  if (!listings.length) {
+    container.innerHTML = `<p class="text-sm text-gray-500">No properties available yet. Submit one from the Sell page!</p>`;
+    return;
   }
+  container.innerHTML = listings.slice(0, 6).map((l) => listingCardHtml(l, favorites, compare)).join("");
+  synchronizeSavedButtons();
+}
+
+function attachLandingEvents() {
+  const searchButton = safeQuery("#landing-search");
+  const viewAllButton = safeQuery("#landing-view-all");
+  const listLandButton = safeQuery("#landing-list-land");
+
+  if (viewAllButton) viewAllButton.addEventListener("click", () => navigateTo("browse.html"));
+  if (listLandButton) listLandButton.addEventListener("click", () => navigateTo("sell.html"));
+  if (searchButton) {
+    searchButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigateTo(buildSearchUrl());
+    });
+  }
+
+  document.querySelectorAll("[data-landing-location]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const city = button.getAttribute("data-landing-location");
+      navigateTo(`browse.html?city=${encodeURIComponent(city)}`);
+    });
+  });
+}
+
+function attachBrowsePageEvents() {
+  document.getElementById("listings-container")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-favorite-button]");
+    if (!button) return;
+    const id = String(button.getAttribute("data-favorite-button"));
+    const favorites = getStoredFavorites();
+    const isSaved = favorites.includes(id);
+    toggleSavedItem(FAVORITES_STORAGE_KEY, id, !isSaved);
+    synchronizeSavedButtons();
+    updateBrowseStatus();
+    showLandingToast(!isSaved ? "Added to favorites." : "Removed from favorites.");
+  });
+
+  document.getElementById("listings-container")?.addEventListener("change", (event) => {
+    const checkbox = event.target.closest("[data-compare-checkbox]");
+    if (!checkbox) return;
+    const id = String(checkbox.getAttribute("data-compare-id"));
+    toggleSavedItem(COMPARE_STORAGE_KEY, id, checkbox.checked);
+    updateBrowseStatus();
+    renderCompareBar();
+    showLandingToast(checkbox.checked ? "Added to compare list." : "Removed from compare list.");
+  });
+
+  synchronizeSavedButtons();
+  updateBrowseStatus();
+}
+
+function populateBrowseFilters() {
+  const params = getQueryParams();
+  const mappings = {
+    "browse-city": "city",
+    "browse-landtype": "landType",
+    "browse-minprice": "minPrice",
+    "browse-maxprice": "maxPrice",
+  };
+  Object.entries(mappings).forEach(([id, param]) => {
+    const element = safeQuery(`#${id}`);
+    if (element && params.has(param)) element.value = params.get(param);
+  });
 }
 
 async function attachPageEvents() {
   attachLandingEvents();
-  attachGenericNavEvents();
-  updateLoginButton();
   renderCompareBar();
 
   if (document.getElementById("featured-listings-container")) {
     await renderFeaturedListings();
   }
 
-  if (safeQuery("#auth-page")) attachAuthPageEvents();
   if (safeQuery("#browse-page")) {
     populateBrowseFilters();
     attachBrowsePageEvents();
   }
-  if (safeQuery("#sell-page")) attachSellPageEvents();
-  if (safeQuery("#dashboard-page")) await attachDashboardPageEvents();
 }
 
-window.toggleMobileMenu = toggleMobileMenu;
-window.closeMobileMenu = closeMobileMenu;
 window.navigateTo = navigateTo;
 window.showLandingToast = showLandingToast;
 window.getStoredFavorites = getStoredFavorites;
@@ -519,6 +392,5 @@ window.attachBrowsePageEvents = attachBrowsePageEvents;
 window.renderCompareBar = renderCompareBar;
 window.formatPrice = formatPrice;
 window.loadListings = loadListings;
-window.CACHED_LISTINGS = CACHED_LISTINGS;
 
 window.addEventListener("DOMContentLoaded", attachPageEvents);

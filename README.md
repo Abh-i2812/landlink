@@ -1,43 +1,20 @@
-# LandLink GitHub Pages Static Site
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-This folder contains a static GitHub Pages-ready version of the LandLink landing site.
+# Run and deploy your AI Studio app
 
-## Files
+This contains everything you need to run your app locally.
 
-- `index.html` — static homepage for GitHub Pages.
-- `auth.html` — static phone OTP auth page that can connect to an external backend.
-- `browse.html` — static browse listings page with filter controls, favorites, and compare actions.
-- `sell.html` — static sell page with a listing form placeholder.
-- `about.html` — static about page.
-- `contact.html` — static contact page.
-- `dashboard.html` — static dashboard placeholder page after OTP login.
-- `landing.js` — shared JavaScript for navigation, search, local favorites, compare actions, and auth backend integration.
+View your app in AI Studio: https://ai.studio/apps/4743c2c2-4016-4ff7-9252-e7208631dca1
 
-## Features added
+## Run Locally
 
-- Local browser storage for favorite listings and compare selections.
-- Dashboard state with remembered OTP login information.
-- Dynamic login button that routes authenticated users to dashboard.
-- Seller page guidance showing login status.
-- Local UI feedback via toast messages on interactions.
+**Prerequisites:**  Node.js
 
-## To use
 
-1. Host this repository using GitHub Pages from the `docs/` folder.
-2. Open `https://<your-name>.github.io/<repo>/` to view the static site.
-3. If you want `auth.html` to connect to a real auth backend, update `AUTH_BACKEND_ORIGIN` in `docs/landing.js`.
-
-## Connecting to an external auth app
-
-Edit the top of `docs/landing.js`:
-
-```js
-const AUTH_BACKEND_ORIGIN = "https://YOUR-AUTH-APP-HOST.com";
-```
-
-Then deploy your auth backend with endpoints like:
-
-- `POST ${AUTH_BACKEND_ORIGIN}/api/auth/send-otp`
-- `POST ${AUTH_BACKEND_ORIGIN}/api/auth/verify-otp`
-
-The static auth page will send OTP requests to that host.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

@@ -12,7 +12,7 @@
         options.token ||
         global.MAPBOX_TOKEN ||
         localStorage.getItem("landlinkMapboxToken") ||
-        "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SY2O0Q1AMJ1e13A"; // Default free token
+        "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmZmZmangifQ.-g_vE53SY2O0Q1AMJ1e13A";
     }
 
     async init() {
@@ -41,17 +41,6 @@
         });
 
         this.map.addControl(new global.mapboxgl.NavigationControl(), 'top-right');
-        
-        // Restyle Mapbox controls
-        const style = document.createElement('style');
-        style.innerHTML = `
-          .mapboxgl-ctrl-group { border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-          .mapboxgl-ctrl-group button { width: 36px; height: 36px; background-color: #fff8f0; }
-          .mapboxgl-ctrl-group button:hover { background-color: #f4ede3; }
-          .mapboxgl-ctrl-icon { filter: brightness(0) saturate(100%) invert(18%) sepia(21%) saturate(2321%) hue-rotate(345deg) brightness(97%) contrast(93%); } /* Matches #412817 primary */
-          .mapboxgl-ctrl-compass-active .mapboxgl-ctrl-icon { filter: brightness(0) saturate(100%) invert(77%) sepia(61%) saturate(579%) hue-rotate(337deg) brightness(101%) contrast(98%); } /* Matches #fdba4b mustard */
-        `;
-        document.head.appendChild(style);
 
         this.map.on("load", () => {
           if (!this.map.getSource("mapbox-dem")) {
@@ -64,12 +53,10 @@
             this.map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
           }
 
-          // Render Boundary or Circle
-          let polygonAreaSqM = 0;
           if (boundaryGeojson) {
             let geojson = typeof boundaryGeojson === 'string' ? JSON.parse(boundaryGeojson) : boundaryGeojson;
             if (global.turf) {
-              polygonAreaSqM = global.turf.area(geojson);
+              const polygonAreaSqM = global.turf.area(geojson);
               const acres = (polygonAreaSqM * 0.000247105).toFixed(2);
               const guntha = (polygonAreaSqM * 0.00988422).toFixed(1);
               areaLabel = `≈ ${guntha} Guntha / ${acres} Acres`;
@@ -88,7 +75,6 @@
               paint: { "line-color": "#E8A83A", "line-width": 3 }
             });
           } else {
-            // Draw circle using turf if available
             const radiusMeters = Math.max(40, Number(this.options.areaSqft || 1000) * 0.02);
             if (global.turf) {
               const circle = global.turf.circle([lng, lat], radiusMeters / 1000, { units: 'kilometers' });
@@ -114,7 +100,6 @@
             .addTo(this.map)
             .togglePopup();
 
-          // Animate in
           this.map.flyTo({
             center: [lng, lat],
             pitch: 60,
@@ -127,7 +112,6 @@
         return this;
       }
 
-      // Fallback: Leaflet
       this.mode = "leaflet";
       if (!global.L) throw new Error("Leaflet is required for 3D fallback map");
       this.map = global.L.map(this.containerId).setView([lat, lng], 16);

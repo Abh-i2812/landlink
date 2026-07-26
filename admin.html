@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LandLink Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="flex-grow flex items-center justify-center p-6">
+      <div class="w-full max-w-md bg-white rounded-3xl p-8 shadow-xl border border-amber-900/10">
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 mb-3 font-bold text-xl">
+            🔒
+          </div>
+          <h1 class="text-2xl font-bold text-[#412817]">Admin Portal</h1>
+          <p class="text-sm text-gray-500 mt-1">Sign in with your admin credentials</p>
+        </div>
+
+        <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium" role="alert"></div>
+
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Email Address</label>
+            <input id="login-email" type="email" required placeholder="admin@example.com" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#412817]" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Password</label>
+            <input id="login-password" type="password" required placeholder="••••••••" class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#412817]" />
+          </div>
+
+          <button type="submit" class="w-full py-3 px-4 rounded-full bg-[#412817] text-white font-semibold text-sm hover:bg-[#5a3e2b] active:scale-95 transition-all shadow-md">
+            Log in
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard-section" class="hidden flex-grow flex flex-col">
+      <!-- HEADER -->
+      <header class="bg-[#412817] text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xl font-bold">LandLink Admin</span>
+            <span class="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-medium">Dashboard</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span id="admin-email" class="text-sm text-amber-100 font-medium hidden sm:inline"></span>
+            <button id="logout-btn" class="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full font-semibold text-white transition-colors">
+              Log out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN CONTENT -->
+      <main class="max-w-7xl mx-auto px-6 py-8 w-full flex-grow">
+        <div id="action-status" class="hidden"></div>
+
+        <!-- SECTION A: PROPERTY LISTINGS -->
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-[#412817]">Property Listings</h2>
+              <p class="text-xs text-gray-500">All submitted property listings (newest first)</p>
+            </div>
+            <button id="refresh-properties" class="text-xs bg-amber-100 text-amber-900 hover:bg-amber-200 px-3 py-1.5 rounded-lg font-semibold transition-colors">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="bg-white rounded-3xl shadow-md border border-gray-200/60 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-gray-700">
+                <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-3">Property Title</th>
+                    <th class="px-4 py-3">Type</th>
+                    <th class="px-4 py-3">Location</th>
+                    <th class="px-4 py-3">Size</th>
+                    <th class="px-4 py-3">Price</th>
+                    <th class="px-4 py-3">Description</th>
+                    <th class="px-4 py-3">Seller Name</th>
+                    <th class="px-4 py-3">Seller Email</th>
+                    <th class="px-4 py-3">Seller Phone</th>
+                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="properties-tbody" class="divide-y divide-gray-100">
+                  <tr>
+                    <td colspan="11" class="px-4 py-6 text-center text-gray-500">Loading properties...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION B: ENQUIRIES -->
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-2xl font-bold text-[#412817]">Enquiries</h2>
+              <p class="text-xs text-gray-500">All user messages and contact enquiries (newest first)</p>
+            </div>
+            <button id="refresh-inquiries" class="text-xs bg-amber-100 text-amber-900 hover:bg-amber-200 px-3 py-1.5 rounded-lg font-semibold transition-colors">
+              🔄 Refresh
+            </button>
+          </div>
+
+          <div class="bg-white rounded-3xl shadow-md border border-gray-200/60 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-gray-700">
+                <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-3">Name</th>
+                    <th class="px-4 py-3">Phone</th>
+                    <th class="px-4 py-3">Message</th>
+                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inquiries-tbody" class="divide-y divide-gray-100">
+                  <tr>
+                    <td colspan="5" class="px-4 py-6 text-center text-gray-500">Loading enquiries...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="bg-[#412817] text-amber-200/60 text-xs text-center py-4 border-t border-amber-900/40">
+        LandLink Admin Console &bull; Connected to Supabase
+      </footer>
+    </div>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+      const supabase = createClient(
+        'https://duvpdircogolckotzjra.supabase.co',
+        'sb_publishable_DUsDj3ZsdfJeQcVPcnvNuw_e_YtfnuD'
+      );
+
+      const loginSection = document.getElementById('login-section');
+      const dashboardSection = document.getElementById('dashboard-section');
+      const loginForm = document.getElementById('login-form');
+      const loginError = document.getElementById('login-error');
+      const logoutBtn = document.getElementById('logout-btn');
+      const adminEmailDisplay = document.getElementById('admin-email');
+      const actionStatus = document.getElementById('action-status');
+
+      async function checkSession() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session && session.user) {
+          showDashboard(session.user);
+        } else {
+          showLoginForm();
+        }
+      }
+
+      function showLoginForm() {
+        loginSection.classList.remove('hidden');
+        dashboardSection.classList.add('hidden');
+      }
+
+      function showDashboard(user) {
+        loginSection.classList.add('hidden');
+        dashboardSection.classList.remove('hidden');
+        adminEmailDisplay.textContent = user.email || 'Admin User';
+        loadProperties();
+        loadInquiries();
+      }
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.classList.add('hidden');
+        loginError.textContent = '';
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          loginError.textContent = 'Login failed: ' + error.message;
+          loginError.classList.remove('hidden');
+        } else if (data.session) {
+          showDashboard(data.session.user);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        showLoginForm();
+      });
+
+      document.getElementById('refresh-properties').addEventListener('click', loadProperties);
+      document.getElementById('refresh-inquiries').addEventListener('click', loadInquiries);
+
+      async function loadProperties() {
+        const tbody = document.getElementById('properties-tbody');
+        tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-6 text-center text-gray-500">Loading properties...</td></tr>';
+
+        const { data, error } = await supabase
+          .from('properties')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-6 text-center text-red-600 font-medium">Failed to load properties: ${escapeHtml(error.message)}</td></tr>`;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-6 text-center text-gray-500">No properties found in database.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.map(row => {
+          const price = row.asking_price ?? row.price ?? '-';
+          const formattedPrice = typeof price === 'number' ? '₹' + price.toLocaleString('en-IN') : price;
+          const createdAt = row.created_at ? new Date(row.created_at).toLocaleString() : '-';
+
+          return `
+            <tr class="hover:bg-amber-50/50 transition-colors">
+              <td class="px-4 py-3 font-semibold text-gray-900">${escapeHtml(row.property_title || '-')}</td>
+              <td class="px-4 py-3"><span class="px-2 py-0.5 bg-amber-100 text-amber-900 rounded-md font-medium text-[11px]">${escapeHtml(row.property_type || '-')}</span></td>
+              <td class="px-4 py-3 text-gray-600">${escapeHtml(row.location || '-')}</td>
+              <td class="px-4 py-3 text-gray-600">${escapeHtml(row.size || '-')}</td>
+              <td class="px-4 py-3 font-semibold text-emerald-700">${formattedPrice}</td>
+              <td class="px-4 py-3 text-gray-600 max-w-xs truncate" title="${escapeHtml(row.description || '')}">${escapeHtml(row.description || '-')}</td>
+              <td class="px-4 py-3 text-gray-600">${escapeHtml(row.seller_name || '-')}</td>
+              <td class="px-4 py-3 text-gray-600">${escapeHtml(row.seller_email || '-')}</td>
+              <td class="px-4 py-3 text-gray-600">${escapeHtml(row.seller_phone || '-')}</td>
+              <td class="px-4 py-3 text-gray-500 text-[11px]">${createdAt}</td>
+              <td class="px-4 py-3 text-right">
+                <button data-delete-property="${row.id}" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        tbody.querySelectorAll('[data-delete-property]').forEach(btn => {
+          btn.addEventListener('click', () => deleteProperty(btn.getAttribute('data-delete-property')));
+        });
+      }
+
+      async function deleteProperty(id) {
+        if (!confirm('Are you sure you want to delete this property listing?')) return;
+        showStatus('Deleting property listing...');
+        const { error } = await supabase.from('properties').delete().eq('id', id);
+        if (error) {
+          showStatus('Error deleting property: ' + error.message, true);
+        } else {
+          showStatus('Property listing deleted successfully.');
+          loadProperties();
+        }
+      }
+
+      async function loadInquiries() {
+        const tbody = document.getElementById('inquiries-tbody');
+        tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">Loading enquiries...</td></tr>';
+
+        const { data, error } = await supabase
+          .from('inquiries')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-red-600 font-medium">Failed to load enquiries: ${escapeHtml(error.message)}</td></tr>`;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">No enquiries found in database.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.map(row => {
+          const createdAt = row.created_at ? new Date(row.created_at).toLocaleString() : '-';
+          return `
+            <tr class="hover:bg-amber-50/50 transition-colors">
+              <td class="px-4 py-3 font-semibold text-gray-900">${escapeHtml(row.name || '-')}</td>
+              <td class="px-4 py-3 text-gray-600 font-mono">${escapeHtml(row.phone || '-')}</td>
+              <td class="px-4 py-3 text-gray-600 max-w-md whitespace-pre-wrap">${escapeHtml(row.message || '-')}</td>
+              <td class="px-4 py-3 text-gray-500 text-[11px]">${createdAt}</td>
+              <td class="px-4 py-3 text-right">
+                <button data-delete-inquiry="${row.id}" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        tbody.querySelectorAll('[data-delete-inquiry]').forEach(btn => {
+          btn.addEventListener('click', () => deleteInquiry(btn.getAttribute('data-delete-inquiry')));
+        });
+      }
+
+      async function deleteInquiry(id) {
+        if (!confirm('Are you sure you want to delete this enquiry?')) return;
+        showStatus('Deleting enquiry...');
+        const { error } = await supabase.from('inquiries').delete().eq('id', id);
+        if (error) {
+          showStatus('Error deleting enquiry: ' + error.message, true);
+        } else {
+          showStatus('Enquiry deleted successfully.');
+          loadInquiries();
+        }
+      }
+
+      function showStatus(msg, isError = false) {
+        actionStatus.textContent = msg;
+        actionStatus.className = isError
+          ? 'mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium'
+          : 'mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium';
+        actionStatus.classList.remove('hidden');
+        setTimeout(() => actionStatus.classList.add('hidden'), 4000);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      checkSession();
+    </script>
+  </body>
+</html>

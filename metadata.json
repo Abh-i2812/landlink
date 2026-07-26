@@ -1,0 +1,6 @@
+{
+  "name": "LandLink",
+  "description": "Land Marketplace Maharashtra with admin portal and Supabase integration",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

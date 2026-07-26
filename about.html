@@ -5,26 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>About LandLink</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
       body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
-      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-      .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(130, 116, 109, 0.2); }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
     </style>
   </head>
   <body>
-    <header class="bg-primary shadow-md">
+    <header class="bg-[#412817] text-white shadow-md">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl"><span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">location_on</span>LandLink</a>
-        <nav class="hidden lg:flex items-center gap-6 text-sm text-on-primary opacity-90">
-          <a data-nav="index.html" href="index.html">Home</a>
-          <a data-nav="browse.html" href="browse.html">Browse</a>
-          <a data-nav="sell.html" href="sell.html">Sell</a>
-          <a data-nav="about.html" href="about.html" class="font-semibold">About</a>
-          <a data-nav="contact.html" href="contact.html">Contact</a>
+        <a href="index.html" class="flex items-center gap-2 font-bold text-xl"><span class="material-symbols-outlined text-[#fdba4b]">location_on</span>LandLink</a>
+        <nav class="hidden lg:flex items-center gap-6 text-sm opacity-90">
+          <a href="index.html" class="hover:text-[#fdba4b]">Home</a>
+          <a href="browse.html" class="hover:text-[#fdba4b]">Browse</a>
+          <a href="sell.html" class="hover:text-[#fdba4b]">Sell</a>
+          <a href="about.html" class="font-semibold text-[#fdba4b]">About</a>
+          <a href="contact.html" class="hover:text-[#fdba4b]">Contact</a>
         </nav>
-        <button id="landing-login" class="text-sm text-on-primary hover:text-secondary-fixed">Login / Sign Up</button>
       </div>
     </header>
 
@@ -32,38 +30,38 @@
       <section class="grid gap-12 lg:grid-cols-[0.75fr_1fr] lg:items-center">
         <div>
           <h1 class="text-4xl font-semibold text-[#3e2723]">About LandLink</h1>
-          <p class="mt-6 text-lg leading-8 text-[#5a5145]">LandLink is a premium marketplace for verified Maharashtra land listings. This static site is designed for GitHub Pages while your real backend can run on a separate auth service.</p>
+          <p class="mt-6 text-lg leading-8 text-[#5a5145]">LandLink is a trusted marketplace for verified Maharashtra land listings. Connecting sellers and buyers directly for agricultural, NA residential, commercial, and industrial plots.</p>
         </div>
-        <div class="rounded-[32px] bg-[#fffdf6] p-8 shadow-[0_24px_80px_rgba(90,62,43,0.08)]">
-          <h2 class="text-2xl font-semibold text-[#3e2723]">What we offer</h2>
-          <ul class="mt-6 space-y-4 text-sm text-[#5a5145]">
-            <li>Verified plots with clear documentation.</li>
-            <li>Seller and buyer-friendly connections.</li>
-            <li>Static promotion pages for GitHub and marketing.</li>
+        <div class="rounded-[32px] bg-white p-8 shadow-lg border border-amber-900/10">
+          <h2 class="text-2xl font-semibold text-[#3e2723]">What We Offer</h2>
+          <ul class="mt-6 space-y-4 text-sm text-[#5a5145] list-disc pl-5">
+            <li>Verified land plots across Pune and Maharashtra.</li>
+            <li>Direct connection between land buyers and verified sellers.</li>
+            <li>Clear details, sizes, locations, and pricing transparency.</li>
           </ul>
         </div>
       </section>
 
       <section class="mt-16 grid gap-12 lg:grid-cols-3">
-        <div class="rounded-[32px] bg-white p-8 shadow-lg">
+        <div class="rounded-[32px] bg-white p-8 shadow-lg border border-amber-900/10">
           <h3 class="text-xl font-semibold text-[#3e2723]">Trust</h3>
-          <p class="mt-3 text-sm text-[#5a5145]">Every listing is designed to show verified documents and trusted agents only.</p>
+          <p class="mt-3 text-sm text-[#5a5145]">Every listing is verified with clear seller contact details and documentation.</p>
         </div>
-        <div class="rounded-[32px] bg-white p-8 shadow-lg">
+        <div class="rounded-[32px] bg-white p-8 shadow-lg border border-amber-900/10">
           <h3 class="text-xl font-semibold text-[#3e2723]">Safety</h3>
-          <p class="mt-3 text-sm text-[#5a5145]">Our static pages can point to a live backend for OTP login and secure buyer workflows.</p>
+          <p class="mt-3 text-sm text-[#5a5145]">Secure platform connecting buyers and sellers directly with complete peace of mind.</p>
         </div>
-        <div class="rounded-[32px] bg-white p-8 shadow-lg">
+        <div class="rounded-[32px] bg-white p-8 shadow-lg border border-amber-900/10">
           <h3 class="text-xl font-semibold text-[#3e2723]">Simplicity</h3>
-          <p class="mt-3 text-sm text-[#5a5145]">Use this GitHub Pages-ready site to showcase the product and connect it to your auth app.</p>
+          <p class="mt-3 text-sm text-[#5a5145]">Easy listing process for sellers and seamless search experience for buyers.</p>
         </div>
       </section>
     </main>
 
-    <footer class="bg-primary text-on-primary py-10">
-      <div class="mx-auto max-w-7xl px-6 text-sm opacity-90">This static site is a front-end prototype for GitHub Pages. Connect to a backend for full auth and listing behavior.</div>
+    <footer class="bg-[#412817] text-white py-10">
+      <div class="mx-auto max-w-7xl px-6 text-sm opacity-90 text-center">&copy; 2024 LandLink. All rights reserved.</div>
     </footer>
-    <script src="./landing.js"></script>
     <script src="./site-common.js"></script>
+    <script src="./whatsapp.js"></script>
   </body>
 </html>

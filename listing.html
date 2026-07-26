@@ -9,20 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
     <style>
       body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
       .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
-      #map, #map3d { height: 400px; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+      #map { height: 350px; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     </style>
   </head>
   <body>
-    <header class="bg-primary shadow-md sticky top-0 z-40">
+    <header class="bg-[#412817] text-white shadow-md sticky top-0 z-40">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
-          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        <a href="index.html" class="flex items-center gap-2 font-bold text-xl">
+          <span class="material-symbols-outlined text-[#fdba4b]">location_on</span>LandLink
         </a>
-        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed flex items-center gap-2">
+        <button onclick="window.history.back()" class="hover:text-[#fdba4b] flex items-center gap-2">
           <span class="material-symbols-outlined">arrow_back</span>
           <span class="hidden sm:inline">Back</span>
         </button>
@@ -30,24 +29,20 @@
     </header>
 
     <main class="mx-auto max-w-7xl px-6 py-12">
-      <div id="listing-content"><p class="text-sm text-on-surface-variant">Loading listing...</p></div>
+      <div id="listing-content"><p class="text-sm text-[#50453e]">Loading listing details...</p></div>
     </main>
 
-    <footer class="bg-primary text-on-primary py-12 mt-20">
+    <footer class="bg-[#412817] text-white py-12 mt-20">
       <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">&copy; 2024 LandLink. All rights reserved.</div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
-    <script src="./api.js"></script>
-    <script src="./mapbox-3d.js"></script>
-    <script src="./landing.js"></script>
     <script src="./site-common.js"></script>
-    <script>
-      let currentListing = null;
-      let map3dInstance = null;
+    <script src="./whatsapp.js"></script>
+    <script type="module" src="./landing.js"></script>
+    <script type="module">
+      import { loadListings, formatPrice, getStoredFavorites, toggleSavedItem, FAVORITES_STORAGE_KEY, showLandingToast } from "./landing.js";
 
       function getListingId() {
         return new URLSearchParams(window.location.search).get('id');
@@ -60,131 +55,75 @@
           content.innerHTML = '<p class="text-red-700">Missing listing id.</p>';
           return;
         }
-        try {
-          const data = await LandLinkAPI.getListing(id);
-          currentListing = data.listing;
-        } catch (err) {
-          content.innerHTML = `<p class="text-red-700">Failed to load listing: ${err.message}</p>`;
+
+        const allListings = await loadListings();
+        const listing = allListings.find(l => String(l.id) === String(id)) || allListings[0];
+
+        if (!listing) {
+          content.innerHTML = '<p class="text-red-700">Property not found.</p>';
           return;
         }
 
-        const listing = currentListing;
         const favorites = getStoredFavorites();
         const isFavorited = favorites.includes(String(listing.id));
-        const lat = listing.latitude || 18.5204;
-        const lng = listing.longitude || 73.8567;
+        const lat = 18.5204;
+        const lng = 73.8567;
 
         content.innerHTML = `
           <div class="grid gap-8 lg:grid-cols-3">
             <div class="lg:col-span-2">
-              <div data-aos="fade-up" class="rounded-3xl overflow-hidden mb-8 shadow-lg">
-                <img src="${listing.image}" alt="${listing.title}" class="w-full h-96 object-cover" />
+              <div data-aos="fade-up" class="rounded-3xl overflow-hidden mb-8 shadow-lg h-96 bg-cover bg-center" style="background-image: url('${listing.image}');">
               </div>
-              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md mb-8">
+              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md mb-8 border border-amber-900/10">
                 <div class="flex items-start justify-between gap-4">
                   <div>
-                    <p class="text-sm uppercase text-primary font-bold tracking-wide">${String(listing.type || '').replace(/_/g, ' ')}</p>
-                    <h1 class="text-4xl font-bold text-primary mt-2">${listing.title}</h1>
-                    <p class="text-2xl font-bold text-secondary mt-4">₹${formatPrice(listing.price)}</p>
+                    <p class="text-xs uppercase text-[#412817] font-bold tracking-wide">${String(listing.type || '').replace(/_/g, ' ')}</p>
+                    <h1 class="text-4xl font-bold text-[#412817] mt-2">${listing.title}</h1>
+                    <p class="text-3xl font-bold text-[#412817] mt-4">₹ ${formatPrice(listing.price)}</p>
                   </div>
-                  <button id="fav-btn" class="rounded-full px-6 py-3 font-semibold transition-all ${isFavorited ? 'bg-secondary-fixed text-on-secondary-container' : 'bg-secondary-fixed/20 text-primary'}">
+                  <button id="fav-btn" class="rounded-full px-6 py-3 font-semibold transition-all ${isFavorited ? 'bg-[#fdba4b] text-[#281800]' : 'bg-[#fff4e7] text-[#412817]'}">
                     ${isFavorited ? 'Favorited' : 'Add to Favorites'}
                   </button>
                 </div>
-                <p class="mt-6 text-sm leading-7 text-on-surface-variant">${listing.description || ''}</p>
+                <p class="mt-6 text-sm leading-7 text-[#50453e]">${listing.description || 'No description provided.'}</p>
               </div>
-              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md mb-8">
-                <h2 class="text-2xl font-bold text-primary mb-6">Property Details</h2>
+
+              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md mb-8 border border-amber-900/10">
+                <h2 class="text-2xl font-bold text-[#412817] mb-6">Property Details</h2>
                 <div class="grid gap-6 md:grid-cols-2">
-                  <div class="p-4 bg-surface-container rounded-2xl"><p class="text-sm text-on-surface-variant">Area</p><p class="text-xl font-bold text-primary mt-1">${listing.area} ${listing.unit}</p></div>
-                  <div class="p-4 bg-surface-container rounded-2xl"><p class="text-sm text-on-surface-variant">Location</p><p class="text-xl font-bold text-primary mt-1">${listing.city}</p></div>
-                  <div class="p-4 bg-surface-container rounded-2xl"><p class="text-sm text-on-surface-variant">Facing / Road</p><p class="text-xl font-bold text-primary mt-1">${listing.facing || '-'} / ${listing.roadWidthFt || 0} ft</p></div>
-                  <div class="p-4 bg-surface-container rounded-2xl"><p class="text-sm text-on-surface-variant">Status</p><p class="text-xl font-bold text-tertiary mt-1">${listing.verified ? 'Verified' : listing.status}</p></div>
+                  <div class="p-4 bg-amber-50 rounded-2xl"><p class="text-xs text-[#50453e]">Area / Size</p><p class="text-xl font-bold text-[#412817] mt-1">${listing.area || '-'}</p></div>
+                  <div class="p-4 bg-amber-50 rounded-2xl"><p class="text-xs text-[#50453e]">Location</p><p class="text-xl font-bold text-[#412817] mt-1">${listing.city || '-'}</p></div>
+                  <div class="p-4 bg-amber-50 rounded-2xl"><p class="text-xs text-[#50453e]">Land Type</p><p class="text-xl font-bold text-[#412817] mt-1">${String(listing.type || '').replace(/_/g, ' ')}</p></div>
+                  <div class="p-4 bg-amber-50 rounded-2xl"><p class="text-xs text-[#50453e]">Status</p><p class="text-xl font-bold text-emerald-700 mt-1">Verified / Active</p></div>
                 </div>
               </div>
-              <div data-aos="fade-up" class="rounded-3xl overflow-hidden shadow-md mb-8"><div id="map"></div></div>
-              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md">
-                <h2 class="text-2xl font-bold text-primary mb-4">3D / Satellite View</h2>
-                <p class="text-sm text-on-surface-variant mb-4">Uses Mapbox when <code>MAPBOX_TOKEN</code> / localStorage <code>landlinkMapboxToken</code> is set; otherwise Esri satellite via Leaflet.</p>
-                <div class="flex flex-wrap gap-3 mb-4">
-                  <button id="view-3d-btn" class="rounded-full bg-primary px-6 py-3 font-semibold text-on-primary">Open 3D View</button>
-                  <button id="reset-3d-btn" class="rounded-full border border-primary px-6 py-3 font-semibold text-primary" style="display:none;">Reset View</button>
-                </div>
-                <div id="map3d" style="display:none;"></div>
-              </div>
+
+              <div data-aos="fade-up" class="rounded-3xl overflow-hidden shadow-md mb-8 border border-amber-900/10"><div id="map"></div></div>
             </div>
+
             <div class="lg:col-span-1">
-              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md sticky top-24">
-                <h3 class="text-xl font-bold text-primary mb-4">Get More Info</h3>
-                <div class="space-y-3">
-                  <button id="schedule-btn" class="w-full rounded-full bg-secondary-fixed px-4 py-3 font-semibold text-on-secondary-container text-sm">Schedule Site Visit</button>
-                  <button id="report-btn" class="w-full rounded-full border-2 border-primary text-primary px-4 py-3 font-semibold text-sm">Report Listing</button>
+              <div data-aos="fade-up" class="rounded-3xl bg-white p-8 shadow-md sticky top-24 border border-amber-900/10">
+                <h3 class="text-2xl font-bold text-[#412817] mb-4">Seller Contact</h3>
+                <div class="space-y-4">
+                  ${listing.seller_name ? `<p class="text-sm font-semibold text-[#412817]">Seller: ${listing.seller_name}</p>` : ''}
+                  ${listing.seller_phone ? `<a href="tel:${listing.seller_phone}" class="block w-full text-center rounded-full bg-[#412817] px-4 py-3 font-semibold text-white text-sm hover:bg-[#5a3e2b]">📞 Call ${listing.seller_phone}</a>` : ''}
+                  <a href="contact.html" class="block w-full text-center rounded-full bg-[#fdba4b] px-4 py-3 font-semibold text-[#281800] text-sm hover:bg-[#e0a23c]">Send Enquiry Message</a>
                 </div>
-                <p class="mt-4 text-xs text-on-surface-variant">Seller: ${listing.owner?.name || 'Private'} ${listing.owner?.phone ? '• ' + listing.owner.phone : ''}</p>
               </div>
             </div>
           </div>`;
 
-        document.getElementById('fav-btn')?.addEventListener('click', async () => {
-          const id = String(listing.id);
-          const was = getStoredFavorites().includes(id);
-          toggleSavedItem(FAVORITES_STORAGE_KEY, id, !was);
-          if (getStoredUser()?.token) {
-            try { await LandLinkAPI.toggleFavorite(id); } catch (e) { showLandingToast(e.message); }
-          }
+        document.getElementById('fav-btn')?.addEventListener('click', () => {
+          const sid = String(listing.id);
+          const was = getStoredFavorites().includes(sid);
+          toggleSavedItem(FAVORITES_STORAGE_KEY, sid, !was);
           showLandingToast(!was ? 'Added to favorites' : 'Removed from favorites');
           renderListing();
         });
 
-        const map = L.map('map').setView([lat, lng], 15);
+        const map = L.map('map').setView([lat, lng], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(map);
         L.marker([lat, lng]).addTo(map).bindPopup(`<strong>${listing.title}</strong>`);
-
-        document.getElementById('view-3d-btn')?.addEventListener('click', async () => {
-          const map3d = document.getElementById('map3d');
-          const btn = document.getElementById('view-3d-btn');
-          const reset = document.getElementById('reset-3d-btn');
-          if (map3d.style.display === 'none') {
-            map3d.style.display = 'block';
-            btn.textContent = 'Hide 3D View';
-            reset.style.display = 'inline-flex';
-            if (map3dInstance) map3dInstance.destroy();
-            map3dInstance = new LandLinkMap3D('map3d', {
-              lat, lng,
-              title: listing.title,
-              areaLabel: `${listing.area} ${listing.unit}`,
-              radiusMeters: Math.max(40, Number(listing.areaSqft || 1000) * 0.02),
-              boundaryGeojson: listing.boundary_geojson
-            });
-            await map3dInstance.init();
-          } else {
-            map3d.style.display = 'none';
-            btn.textContent = 'Open 3D View';
-            reset.style.display = 'none';
-            if (map3dInstance) { map3dInstance.destroy(); map3dInstance = null; }
-          }
-        });
-
-        document.getElementById('reset-3d-btn')?.addEventListener('click', () => map3dInstance?.resetView());
-
-        document.getElementById('schedule-btn')?.addEventListener('click', async () => {
-          const user = getStoredUser();
-          if (!user?.token) { showLandingToast('Please login first'); navigateTo('auth.html'); return; }
-          try {
-            const when = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
-            await LandLinkAPI.createAppointment({ listingId: listing.id, scheduledAt: when, notes: 'Requested from listing page' });
-            showLandingToast('Site visit requested');
-          } catch (e) { showLandingToast(e.message); }
-        });
-
-        document.getElementById('report-btn')?.addEventListener('click', async () => {
-          const user = getStoredUser();
-          if (!user?.token) { showLandingToast('Please login first'); navigateTo('auth.html'); return; }
-          try {
-            await LandLinkAPI.createReport({ listingId: listing.id, reason: 'User report', description: 'Reported from listing page' });
-            showLandingToast('Report submitted');
-          } catch (e) { showLandingToast(e.message); }
-        });
       }
 
       document.addEventListener('DOMContentLoaded', () => {

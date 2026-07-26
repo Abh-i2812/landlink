@@ -3,140 +3,54 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LandLink Login | Phone OTP Authentication</title>
+    <title>LandLink Login | Authentication</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
-      body { background-color: #fff8f0; color: #1e1b16; }
-      .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(130, 116, 109, 0.2); }
+      body { background-color: #fff8f0; color: #1e1b16; font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
   </head>
   <body>
     <!-- HEADER -->
-    <header class="bg-primary shadow-md sticky top-0 z-40">
+    <header class="bg-[#412817] text-white shadow-md sticky top-0 z-40">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <a href="index.html" class="flex items-center gap-2 text-on-primary font-bold text-xl">
-          <span class="material-symbols-outlined text-secondary-fixed">location_on</span>LandLink
+        <a href="index.html" class="flex items-center gap-2 font-bold text-xl">
+          <span class="material-symbols-outlined text-[#fdba4b]">location_on</span>LandLink
         </a>
-        <button onclick="window.history.back()" class="text-on-primary hover:text-secondary-fixed">
+        <button onclick="window.history.back()" class="hover:text-[#fdba4b]">
           ← Back
         </button>
       </div>
     </header>
 
-    <main class="mx-auto max-w-4xl px-6 py-16">
-      <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
-        <div data-aos="fade-up">
-          <p class="mb-4 inline-flex rounded-full bg-secondary-fixed/20 px-3 py-1 text-sm font-semibold text-primary">🔐 Secure OTP login</p>
-          <h1 class="text-5xl font-bold tracking-tight text-primary">Login or Register</h1>
-          <p class="mt-6 text-lg text-on-surface-variant">LandLink uses one-time passcodes for secure, password-free login. Perfect for mobile-first access.</p>
-          
-          <div class="mt-12 space-y-6">
-            <div class="flex items-center gap-4">
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
-                <span class="material-symbols-outlined">shield_person</span>
-              </div>
-              <div>
-                <h3 class="font-bold text-primary">Secure Authentication</h3>
-                <p class="text-sm text-on-surface-variant">Your data is protected with industry-leading security.</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
-                <span class="material-symbols-outlined">bolt</span>
-              </div>
-              <div>
-                <h3 class="font-bold text-primary">Fast & Passwordless</h3>
-                <p class="text-sm text-on-surface-variant">Sign in instantly with a secure OTP or your Google account.</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
-                <span class="material-symbols-outlined">sync</span>
-              </div>
-              <div>
-                <h3 class="font-bold text-primary">Seamless Sync</h3>
-                <p class="text-sm text-on-surface-variant">Access your saved properties and preferences across all devices.</p>
-              </div>
-            </div>
-          </div>
+    <main class="mx-auto max-w-md px-6 py-16">
+      <div class="bg-white rounded-3xl p-8 shadow-xl border border-amber-900/10">
+        <h2 class="text-3xl font-bold text-[#412817]">Sign In with Google</h2>
+        <p class="mt-2 text-sm text-[#50453e]">Sign in using your Google account to access saved listings and preferences.</p>
+
+        <div class="mt-8 space-y-4">
+          <button id="auth-google-signin" class="w-full flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-[#412817] hover:bg-gray-50 active:scale-95 transition-all shadow-sm">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
+            Sign in with Google
+          </button>
         </div>
 
-        <div data-aos="fade-right">
-          <div id="auth-page" class="glass-card rounded-3xl border border-outline bg-white p-8 shadow-lg">
-            <h2 class="text-3xl font-bold text-primary">Sign In</h2>
-            <p class="mt-2 text-sm text-on-surface-variant">Enter your mobile number to receive an OTP.</p>
-            <div class="mt-8 space-y-4">
-              <label class="block text-sm font-semibold text-primary">
-                Mobile Number
-                <input id="auth-phone" type="tel" placeholder="9123456789" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
-              </label>
-              <label class="block text-sm font-semibold text-primary">
-                Full Name
-                <input id="auth-name" type="text" placeholder="Your Name" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary" />
-              </label>
-              <label class="block text-sm font-semibold text-primary">
-                Role
-                <select id="auth-role" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary">
-                  <option>BUYER</option>
-                  <option>SELLER</option>
-                  <option>AGENT</option>
-                </select>
-              </label>
-              <button id="auth-send-otp" class="w-full rounded-full bg-secondary-fixed px-4 py-3 text-sm font-semibold text-on-secondary-container hover:bg-secondary-fixed/90 active:scale-95 transition-all">
-                📱 Send OTP
-              </button>
-              
-              <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-outline"></div>
-                <span class="flex-shrink-0 mx-4 text-on-surface-variant text-sm font-medium">Or</span>
-                <div class="flex-grow border-t border-outline"></div>
-              </div>
-              
-              <button id="auth-google-signin" class="w-full flex items-center justify-center gap-2 rounded-full border border-outline bg-white px-4 py-3 text-sm font-semibold text-primary hover:bg-surface-container active:scale-95 transition-all">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
-                Sign in with Google
-              </button>
-            </div>
-
-            <!-- OTP Verification -->
-            <div class="mt-8 border-t border-outline pt-8">
-              <h3 class="text-lg font-semibold text-primary mb-4">Verify OTP</h3>
-              <label class="block text-sm font-semibold text-primary mb-2">
-                Enter 6-Digit OTP
-                <input id="auth-code" type="text" inputmode="numeric" maxlength="6" placeholder="000000" class="mt-2 w-full rounded-2xl border border-outline bg-surface-container px-4 py-3 text-sm text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-secondary font-mono" />
-              </label>
-              <button id="auth-verify-otp" class="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-on-primary hover:bg-primary-container active:scale-95 transition-all">
-                ✓ Verify & Login
-              </button>
-            </div>
-
-            <p id="auth-status" class="mt-4 text-sm text-on-surface-variant text-center">Connecting to live OTP API…</p>
-          </div>
-        </div>
+        <p id="auth-status" class="mt-4 text-xs text-center text-gray-500"></p>
       </div>
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-primary text-on-primary py-12 mt-20">
+    <footer class="bg-[#412817] text-white py-12 mt-20">
       <div class="mx-auto max-w-7xl px-6 text-center text-sm opacity-75">
         &copy; 2024 LandLink. All rights reserved.
       </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
-    <script src="./api.js"></script>
-    <script src="./landing.js"></script>
     <script src="./site-common.js"></script>
-    <script>
-      AOS.init({ duration: 800, once: true });
-    </script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyAKXAyeJvxeNWf_IajCJOmeGpqPyTzbE_c",
@@ -149,57 +63,21 @@
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      const db = getFirestore(app);
       const provider = new GoogleAuthProvider();
 
       const googleBtn = document.getElementById('auth-google-signin');
       const statusText = document.getElementById('auth-status');
 
-      function setStatus(msg, isError = false) {
-        if (!statusText) return;
-        statusText.textContent = msg;
-        statusText.style.color = isError ? "#ba1a1a" : "#3E2723";
-      }
-
       if (googleBtn) {
         googleBtn.addEventListener('click', async () => {
           try {
-            setStatus("Signing in with Google...");
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            
-            // Sync to Firestore
-            const userRef = doc(db, 'users', user.uid);
-            const docSnap = await getDoc(userRef);
-            if (!docSnap.exists()) {
-              await setDoc(userRef, {
-                uid: user.uid,
-                name: user.displayName || '',
-                email: user.email || '',
-                photoURL: user.photoURL || '',
-                createdAt: new Date().toISOString()
-              }, { merge: true });
-            }
-            
-            setStatus("Google Sign-In successful. Redirecting...");
-            
-            // Sync with local system to allow dashboard/api.js to recognize the user
-            const localUser = {
-              token: user.accessToken,
-              phone: user.email, // using email in place of phone for Google users
-              name: user.displayName || user.email,
-              role: 'BUYER'
-            };
-            
-            if (window.LandLinkAPI) {
-              window.LandLinkAPI.setUser(localUser);
-            } else {
-              localStorage.setItem("landlinkUser", JSON.stringify(localUser));
-            }
-            
-            setTimeout(() => window.location.href = "dashboard.html", 800);
+            statusText.textContent = "Signing in...";
+            await signInWithPopup(auth, provider);
+            statusText.textContent = "Sign in successful! Redirecting...";
+            setTimeout(() => window.location.href = "index.html", 600);
           } catch (error) {
-            setStatus("Sign-in failed: " + error.message, true);
+            statusText.textContent = "Sign-in error: " + error.message;
+            statusText.style.color = "#ba1a1a";
           }
         });
       }

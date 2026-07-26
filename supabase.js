@@ -10,7 +10,7 @@ export function showFormStatus(element, message, isError = false) {
   element.textContent = message;
   element.classList.remove('hidden');
   element.className = isError
-    ? 'mt-4 rounded-2xl border border-error bg-error-container px-4 py-3 text-sm font-medium text-error'
+    ? 'mt-4 rounded-2xl border border-red-500 bg-red-50 px-4 py-3 text-sm font-medium text-red-700'
     : 'mt-4 rounded-2xl border border-green-600 bg-green-50 px-4 py-3 text-sm font-medium text-green-800';
 }
 
