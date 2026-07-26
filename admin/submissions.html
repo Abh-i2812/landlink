@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Submissions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('submissions.html', 'Pending submissions', `<div id="list" class="space-y-3"></div>`);
+      async function load() {
+        const { listings } = await LandLinkAPI.admin.listings('PENDING');
+        const drafts = await LandLinkAPI.admin.listings('DRAFT');
+        const all = [...(listings || []), ...(drafts.listings || [])];
+        document.getElementById('list').innerHTML = all.map(l => `
+          <div class="rounded-2xl bg-white p-4 shadow flex justify-between gap-3">
+            <div><div class="font-semibold">${l.title}</div><div class="text-xs">${l.city} • ${l.status}</div></div>
+            <div class="space-x-2 text-sm">
+              <button data-id="${l.id}" data-act="approve" class="underline">Approve</button>
+              <button data-id="${l.id}" data-act="reject" class="underline">Reject</button>
+            </div>
+          </div>`).join('') || '<p>No pending submissions</p>';
+      }
+      document.getElementById('list').addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        try { await LandLinkAPI.admin.updateListing(btn.dataset.id, btn.dataset.act); await load(); }
+        catch (err) { AdminCommon.toast(err.message); }
+      });
+      await load();
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

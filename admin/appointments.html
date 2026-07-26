@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Appointments</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('appointments.html', 'Appointments', `<div id="list" class="space-y-3"></div>`);
+      try {
+        const { appointments } = await LandLinkAPI.admin.appointments();
+        document.getElementById('list').innerHTML = (appointments || []).map(a => `
+          <div class="rounded-2xl bg-white p-4 shadow">
+            <div class="font-semibold">${a.listing?.title || a.listingId}</div>
+            <div class="text-xs mt-1">${a.buyer?.name || a.buyer?.phone || ''} • ${new Date(a.scheduledAt).toLocaleString()} • ${a.status}</div>
+          </div>`).join('') || '<p>No appointments</p>';
+      } catch (err) {
+        document.getElementById('list').innerHTML = `<p class="text-red-700">${err.message}</p>`;
+      }
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

@@ -33,14 +33,34 @@
           <h1 class="text-5xl font-bold tracking-tight text-primary">Login or Register</h1>
           <p class="mt-6 text-lg text-on-surface-variant">LandLink uses one-time passcodes for secure, password-free login. Perfect for mobile-first access.</p>
           
-          <div class="mt-12 rounded-3xl bg-surface-container p-6">
-            <h3 class="font-bold text-primary mb-3">Local API login</h3>
-            <p class="text-sm text-on-surface-variant">
-              <strong>API:</strong> http://localhost:3000<br />
-              <strong>Phone:</strong> 10-digit Indian mobile<br />
-              <strong>OTP:</strong> use <code>123456</code> when Twilio is not configured<br />
-              <strong>Role:</strong> BUYER, SELLER, or AGENT
-            </p>
+          <div class="mt-12 space-y-6">
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
+                <span class="material-symbols-outlined">shield_person</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-primary">Secure Authentication</h3>
+                <p class="text-sm text-on-surface-variant">Your data is protected with industry-leading security.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
+                <span class="material-symbols-outlined">bolt</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-primary">Fast & Passwordless</h3>
+                <p class="text-sm text-on-surface-variant">Sign in instantly with a secure OTP or your Google account.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-fixed/20 text-primary shadow-sm">
+                <span class="material-symbols-outlined">sync</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-primary">Seamless Sync</h3>
+                <p class="text-sm text-on-surface-variant">Access your saved properties and preferences across all devices.</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -109,8 +129,80 @@
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
     <script src="./api.js"></script>
     <script src="./landing.js"></script>
+    <script src="./site-common.js"></script>
     <script>
       AOS.init({ duration: 800, once: true });
+    </script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAKXAyeJvxeNWf_IajCJOmeGpqPyTzbE_c",
+        authDomain: "landlink-92fff.firebaseapp.com",
+        projectId: "landlink-92fff",
+        storageBucket: "landlink-92fff.firebasestorage.app",
+        messagingSenderId: "783116475376",
+        appId: "1:783116475376:web:3a9a1e51e73352c75adb35"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+
+      const googleBtn = document.getElementById('auth-google-signin');
+      const statusText = document.getElementById('auth-status');
+
+      function setStatus(msg, isError = false) {
+        if (!statusText) return;
+        statusText.textContent = msg;
+        statusText.style.color = isError ? "#ba1a1a" : "#3E2723";
+      }
+
+      if (googleBtn) {
+        googleBtn.addEventListener('click', async () => {
+          try {
+            setStatus("Signing in with Google...");
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            // Sync to Firestore
+            const userRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(userRef);
+            if (!docSnap.exists()) {
+              await setDoc(userRef, {
+                uid: user.uid,
+                name: user.displayName || '',
+                email: user.email || '',
+                photoURL: user.photoURL || '',
+                createdAt: new Date().toISOString()
+              }, { merge: true });
+            }
+            
+            setStatus("Google Sign-In successful. Redirecting...");
+            
+            // Sync with local system to allow dashboard/api.js to recognize the user
+            const localUser = {
+              token: user.accessToken,
+              phone: user.email, // using email in place of phone for Google users
+              name: user.displayName || user.email,
+              role: 'BUYER'
+            };
+            
+            if (window.LandLinkAPI) {
+              window.LandLinkAPI.setUser(localUser);
+            } else {
+              localStorage.setItem("landlinkUser", JSON.stringify(localUser));
+            }
+            
+            setTimeout(() => window.location.href = "dashboard.html", 800);
+          } catch (error) {
+            setStatus("Sign-in failed: " + error.message, true);
+          }
+        });
+      }
     </script>
   </body>
 </html>

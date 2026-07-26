@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Listings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('listings.html', 'Listings', `
+        <div class="mb-4"><select id="status" class="rounded-xl border px-3 py-2"><option value="">All</option><option>ACTIVE</option><option>PENDING</option><option>REJECTED</option><option>EXPIRED</option></select>
+        <button id="reload" class="ml-2 rounded-full bg-[#412817] text-white px-4 py-2 text-sm">Filter</button></div>
+        <div id="list" class="space-y-3"></div>`);
+
+      async function load() {
+        const status = document.getElementById('status').value;
+        const { listings } = await LandLinkAPI.admin.listings(status || undefined);
+        document.getElementById('list').innerHTML = listings.map(l => `
+          <div class="rounded-2xl bg-white p-4 shadow flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="font-semibold">${l.title}</div>
+              <div class="text-xs text-[#5a3e2b]">${l.city} • ${l.landType} • ${l.status} • ₹${Number(l.price).toLocaleString('en-IN')}</div>
+            </div>
+            <div class="space-x-2 text-sm">
+              <button data-id="${l.id}" data-act="approve" class="underline">Approve</button>
+              <button data-id="${l.id}" data-act="reject" class="underline">Reject</button>
+              <button data-id="${l.id}" data-act="expire" class="underline">Expire</button>
+            </div>
+          </div>`).join('') || '<p>No listings</p>';
+      }
+      document.getElementById('reload').onclick = () => load().catch(e => AdminCommon.toast(e.message));
+      document.getElementById('list').addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        try { await LandLinkAPI.admin.updateListing(btn.dataset.id, btn.dataset.act); await load(); }
+        catch (err) { AdminCommon.toast(err.message); }
+      });
+      await load();
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

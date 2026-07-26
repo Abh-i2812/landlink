@@ -70,26 +70,6 @@
       .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
       #map { height: 400px; border-radius: 24px; box-shadow: 0 24px 80px rgba(90, 62, 43, 0.08); }
       .active\:scale-95:active { transform: scale(0.95); }
-      .whatsapp-btn {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 56px;
-        height: 56px;
-        background: #25d366;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 28px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        cursor: pointer;
-        transition: all 0.3s;
-        z-index: 30;
-        text-decoration: none;
-      }
-      .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
     </style>
   </head>
   <body>
@@ -106,9 +86,24 @@
           <a data-nav="about.html" href="about.html" class="hover:opacity-100">About</a>
           <a data-nav="contact.html" href="contact.html" class="hover:opacity-100">Contact</a>
         </nav>
-        <div class="flex items-center gap-4">
-          <button id="landing-login" class="text-sm text-on-primary hover:text-secondary-fixed active:scale-95 transition-all">Login / Sign Up</button>
-          <button onclick="toggleMobileMenu()" class="lg:hidden text-on-primary">
+        <div class="flex items-center gap-4 relative">
+          <!-- Firebase Google Login -->
+          <button id="google-login" class="text-sm flex items-center gap-2 bg-white text-primary px-4 py-2 rounded-full hover:bg-surface-container active:scale-95 transition-all font-semibold shadow-sm">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" class="w-4 h-4" />
+            Sign in with Google
+          </button>
+          
+          <div id="firebase-user-profile" class="hidden items-center gap-3">
+            <img id="firebase-user-photo" src="" alt="Profile" class="w-8 h-8 rounded-full border-2 border-secondary-fixed object-cover bg-white" />
+            <span id="firebase-user-name" class="text-sm font-semibold text-on-primary hidden md:inline"></span>
+            <button id="google-logout" class="text-xs px-3 py-1.5 rounded-full border border-on-primary/30 text-on-primary hover:bg-on-primary/10 transition-all">
+              Sign out
+            </button>
+          </div>
+          
+          <div id="firebase-auth-error" class="hidden absolute top-full right-0 mt-2 text-xs bg-error text-on-error px-3 py-2 rounded-lg shadow-lg whitespace-nowrap z-50"></div>
+
+          <button onclick="toggleMobileMenu()" class="lg:hidden text-on-primary ml-2">
             <span class="material-symbols-outlined">menu</span>
           </button>
         </div>
@@ -285,16 +280,12 @@
       </div>
     </footer>
 
-    <!-- WhatsApp Button -->
-    <a href="https://wa.me/919876543210" target="_blank" class="whatsapp-btn" title="Chat on WhatsApp">
-      <span class="material-symbols-outlined" style="font-size:32px;">chat</span>
-    </a>
-
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
     <script src="./api.js"></script>
     <script src="./landing.js"></script>
+    <script src="./site-common.js"></script>
     <script>
       // Initialize map
       async function initializeMap() {
@@ -355,6 +346,87 @@
       // Initialize on load
       document.addEventListener('DOMContentLoaded', () => {
         initializeMap();
+      });
+    </script>
+    
+    <!-- Firebase Authentication & Firestore -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAKXAyeJvxeNWf_IajCJOmeGpqPyTzbE_c",
+        authDomain: "landlink-92fff.firebaseapp.com",
+        projectId: "landlink-92fff",
+        storageBucket: "landlink-92fff.firebasestorage.app",
+        messagingSenderId: "783116475376",
+        appId: "1:783116475376:web:3a9a1e51e73352c75adb35"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+
+      const loginBtn = document.getElementById('google-login');
+      const logoutBtn = document.getElementById('google-logout');
+      const userProfile = document.getElementById('firebase-user-profile');
+      const userName = document.getElementById('firebase-user-name');
+      const userPhoto = document.getElementById('firebase-user-photo');
+      const authError = document.getElementById('firebase-auth-error');
+
+      function showError(msg) {
+        authError.textContent = msg;
+        authError.classList.remove('hidden');
+        setTimeout(() => authError.classList.add('hidden'), 5000);
+      }
+
+      loginBtn.addEventListener('click', async () => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+          // Firestore update on first sign-in
+          const userRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(userRef);
+          if (!docSnap.exists()) {
+            await setDoc(userRef, {
+              uid: user.uid,
+              name: user.displayName || '',
+              email: user.email || '',
+              photoURL: user.photoURL || '',
+              createdAt: new Date().toISOString()
+            }, { merge: true });
+          }
+        } catch (error) {
+          showError("Sign-in failed: " + error.message);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          showError("Sign-out failed: " + error.message);
+        }
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          loginBtn.classList.add('hidden');
+          userProfile.classList.remove('hidden');
+          userProfile.classList.add('flex');
+          userName.textContent = user.displayName || user.email;
+          if (user.photoURL) {
+            userPhoto.src = user.photoURL;
+          } else {
+            userPhoto.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzQxMjgxNyIgZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyYzAgNy41IDEwIDIwIDEwIDIwczEwLTEyLjUgMTAtMjBjMC01LjUyLTQuNDgtMTAtMTAtMTB6Ii8+PC9zdmc+';
+          }
+        } else {
+          loginBtn.classList.remove('hidden');
+          userProfile.classList.add('hidden');
+          userProfile.classList.remove('flex');
+        }
       });
     </script>
   </body>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LandLink Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-[#fff8f0] flex items-center justify-center p-6" style="font-family:'Plus Jakarta Sans',sans-serif">
+  <form id="login-form" class="w-full max-w-md rounded-3xl bg-white p-8 shadow-lg border border-[#e8d8c9]">
+    <h1 class="text-3xl font-bold text-[#412817]">Admin Login</h1>
+    <p class="mt-2 text-sm text-[#5a3e2b]">Default: <code>linkland</code> / <code>admin123</code></p>
+    <label class="block mt-6 text-sm font-semibold">Username
+      <input id="username" class="mt-2 w-full rounded-2xl border px-4 py-3" value="linkland" />
+    </label>
+    <label class="block mt-4 text-sm font-semibold">Password
+      <input id="password" type="password" class="mt-2 w-full rounded-2xl border px-4 py-3" value="admin123" />
+    </label>
+    <button class="mt-6 w-full rounded-full bg-[#412817] text-white py-3 font-semibold">Sign in</button>
+    <p id="status" class="mt-4 text-sm text-[#5a3e2b]"></p>
+    <a href="../index.html" class="mt-4 inline-block text-sm underline">Back to site</a>
+  </form>
+  <script src="../api.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('status');
+      status.textContent = 'Signing in...';
+      try {
+        await LandLinkAPI.adminLogin(
+          document.getElementById('username').value.trim(),
+          document.getElementById('password').value
+        );
+        location.href = 'index.html';
+      } catch (err) {
+        status.textContent = err.message;
+        status.classList.add('text-red-700');
+      }
+    });
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

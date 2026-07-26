@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Users</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('users.html', 'Users', `
+        <div class="mb-4 flex gap-2">
+          <select id="role" class="rounded-xl border px-3 py-2"><option value="">All roles</option><option>BUYER</option><option>SELLER</option><option>AGENT</option><option>ADMIN</option></select>
+          <button id="reload" class="rounded-full bg-[#412817] text-white px-4 py-2 text-sm">Filter</button>
+        </div>
+        <div class="overflow-auto rounded-3xl bg-white shadow"><table class="min-w-full text-sm"><thead><tr class="text-left border-b"><th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">Role</th><th class="p-3">Status</th><th class="p-3">Actions</th></tr></thead><tbody id="rows"></tbody></table></div>`);
+
+      async function load() {
+        const role = document.getElementById('role').value;
+        const { users } = await LandLinkAPI.admin.users(role || undefined);
+        document.getElementById('rows').innerHTML = users.map(u => `
+          <tr class="border-b">
+            <td class="p-3">${u.name || '-'}</td>
+            <td class="p-3">${u.phone}</td>
+            <td class="p-3">${u.role}${u.agentVerified ? ' ✓' : ''}</td>
+            <td class="p-3">${u.suspended ? 'Suspended' : 'Active'}</td>
+            <td class="p-3 space-x-2">
+              <button data-act="verify" data-id="${u.id}" class="underline">Verify agent</button>
+              <button data-act="${u.suspended ? 'unsuspend' : 'suspend'}" data-id="${u.id}" class="underline">${u.suspended ? 'Unsuspend' : 'Suspend'}</button>
+            </td>
+          </tr>`).join('');
+      }
+
+      document.getElementById('reload').onclick = () => load().catch(e => AdminCommon.toast(e.message));
+      document.getElementById('rows').addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        try {
+          await LandLinkAPI.admin.updateUser(btn.dataset.id, btn.dataset.act);
+          await load();
+        } catch (err) { AdminCommon.toast(err.message); }
+      });
+      await load();
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

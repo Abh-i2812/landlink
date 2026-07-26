@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('reports.html', 'Reports', `<div id="list" class="space-y-3"></div>`);
+      async function load() {
+        const { reports } = await LandLinkAPI.admin.reports();
+        document.getElementById('list').innerHTML = (reports || []).map(r => `
+          <div class="rounded-2xl bg-white p-4 shadow flex justify-between gap-3">
+            <div>
+              <div class="font-semibold">${r.listing?.title || r.listingId}</div>
+              <div class="text-xs">${r.reason} • ${r.status} • by ${r.reporter?.phone || ''}</div>
+            </div>
+            <div class="space-x-2 text-sm">
+              <button data-id="${r.id}" data-status="RESOLVED" class="underline">Resolve</button>
+              <button data-id="${r.id}" data-status="DISMISSED" class="underline">Dismiss</button>
+            </div>
+          </div>`).join('') || '<p>No reports</p>';
+      }
+      document.getElementById('list').addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-id]');
+        if (!btn) return;
+        try { await LandLinkAPI.admin.resolveReport(btn.dataset.id, btn.dataset.status); await load(); }
+        catch (err) { AdminCommon.toast(err.message); }
+      });
+      await load();
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

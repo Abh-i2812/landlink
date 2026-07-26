@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('settings.html', 'Settings', `
+        <form id="form" class="rounded-3xl bg-white p-6 shadow space-y-4 max-w-xl">
+          <label class="block text-sm font-semibold">Site name<input id="siteName" class="mt-2 w-full rounded-xl border px-3 py-2" /></label>
+          <label class="block text-sm font-semibold">Contact email<input id="contactEmail" class="mt-2 w-full rounded-xl border px-3 py-2" /></label>
+          <label class="block text-sm font-semibold">Contact phone<input id="contactPhone" class="mt-2 w-full rounded-xl border px-3 py-2" /></label>
+          <button class="rounded-full bg-[#412817] text-white px-4 py-2 text-sm">Save settings</button>
+          <p id="status" class="text-sm"></p>
+        </form>`);
+      try {
+        const { settings } = await LandLinkAPI.admin.settings();
+        document.getElementById('siteName').value = settings.siteName || '';
+        document.getElementById('contactEmail').value = settings.contactEmail || '';
+        document.getElementById('contactPhone').value = settings.contactPhone || '';
+      } catch (err) {
+        document.getElementById('status').textContent = err.message;
+      }
+      document.getElementById('form').onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          await LandLinkAPI.admin.saveSettings({
+            siteName: document.getElementById('siteName').value,
+            contactEmail: document.getElementById('contactEmail').value,
+            contactPhone: document.getElementById('contactPhone').value,
+          });
+          document.getElementById('status').textContent = 'Saved.';
+        } catch (err) {
+          document.getElementById('status').textContent = err.message;
+        }
+      };
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>

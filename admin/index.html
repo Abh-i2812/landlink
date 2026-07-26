@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <script src="../api.js"></script>
+  <script src="./admin-common.js"></script>
+  <script>
+    (async function () {
+      if (!AdminCommon.requireAdmin()) return;
+      AdminCommon.shell('index.html', 'Dashboard', `
+        <div id="stats" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <div class="mt-8 grid gap-6 lg:grid-cols-2">
+          <div class="rounded-3xl bg-white p-6 shadow"><canvas id="usersChart"></canvas></div>
+          <div class="rounded-3xl bg-white p-6 shadow"><canvas id="listingsChart"></canvas></div>
+        </div>`);
+      try {
+        const [{ stats }, weekly] = await Promise.all([
+          LandLinkAPI.admin.stats(),
+          LandLinkAPI.admin.weekly(),
+        ]);
+        document.getElementById('stats').innerHTML = [
+          ['Total listings', stats.totalListings],
+          ['Pending', stats.pendingVerifications],
+          ['Users', stats.totalUsers],
+          ['Appointments', stats.upcomingAppointments],
+        ].map(([l,v]) => `<div class="rounded-3xl bg-white p-6 shadow text-center"><p class="text-3xl font-semibold text-[#412817]">${v}</p><p class="text-sm mt-2">${l}</p></div>`).join('');
+
+        new Chart(document.getElementById('usersChart'), {
+          type: 'line',
+          data: { labels: weekly.users.map(x => x.date.slice(5)), datasets: [{ label: 'Users', data: weekly.users.map(x => x.count), borderColor: '#412817' }] },
+        });
+        new Chart(document.getElementById('listingsChart'), {
+          type: 'bar',
+          data: { labels: weekly.listings.map(x => x.date.slice(5)), datasets: [{ label: 'Listings', data: weekly.listings.map(x => x.count), backgroundColor: '#fdba4b' }] },
+        });
+      } catch (err) {
+        document.getElementById('stats').innerHTML = `<p class="text-red-700">${err.message}</p>`;
+      }
+    })();
+  </script>
+  <script src="../site-common.js"></script>
+</body>
+</html>
